@@ -611,11 +611,11 @@ components:
           description: Дни, когда рейс не выполняется
         arrival:
           type: string
-          format: date-time
+          #format: date-time
           description: Время прибытия в формате ISO 8601
         departure:
           type: string
-          format: date-time
+          #format: date-time
           description: Время отправления в формате ISO 8601
         thread:
           $ref: '#/components/schemas/Thread'

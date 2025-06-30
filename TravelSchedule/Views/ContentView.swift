@@ -46,7 +46,7 @@ struct ContentView: View {
                 try await nearestStationsService.getNearestStations(lat: 55.7558, lng: 37.6173, distance: 10) // ok
                 try await searchService.search(from: "s9808848", to: "s9630756") // ok
                 try await stationsListService.getAllStations() // ok
-                try await scheduleService.getSchedule(station: "s9628059") // ТУТ ЧТО-ТО СЛОЖНО, дата приходит null
+                try await scheduleService.getSchedule(station: "s9628059")
                 try await threadService.getRouteStations(uid: "some-uuid-here") // Я НЕ ПОНИМАЮ ГДЕ ВЗЯТЬ UID
                 
             } catch {
