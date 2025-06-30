@@ -22,6 +22,7 @@ final class SearchService: SearchServiceProtocol {
         from: from,
         to: to)
     )
+      print(try response.ok.hashValue)
     return try response.ok.body.json
   }
 }

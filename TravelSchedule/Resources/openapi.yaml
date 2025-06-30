@@ -421,15 +421,13 @@ paths:
           schema:
             type: string
       responses:
-        "200":
-          description: Успешный ответ
-          content:
-            application/json:
+          "200":
+            description: Успешный ответ
+            content:
+              text/html:
                 schema:
-                    $ref: '#/components/schemas/AllStationsResponse'
-            application/xml:
-                schema:
-                    $ref: '#/components/schemas/AllStationsResponse'
+                  $ref: '#/components/schemas/AllStationsResponse'
+                  
   /v3.0/copyright/:
     get:
       tags:

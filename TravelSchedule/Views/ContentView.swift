@@ -5,7 +5,7 @@ import OpenAPIRuntime
 struct ContentView: View {
     
     // TODO: Удалить после ревью (это для тестов)
-    let apiKey = "ВАШ_КЛЮЧ" // Замените на реальный ключ
+    let apiKey = "ну_тут_ваш_ключ_пожалуйста" // TODO: - Замените на реальный ключ
 
     
     var body: some View {
@@ -40,29 +40,14 @@ struct ContentView: View {
                 let stationsListService = StationsListService(apiKey: apiKey, client: client)
                 let threadService = ThreadService(apiKey: apiKey, client: client)
                 
-//                let r1 = try await carrierService.getCarrierInfo(code: "12345")
-//                print("Carrier Info: \(r1)")
-//                
-                let r2 = try await copyrightService.getCopyrightInfo()
-//                print("Copyright Info: \(r2)")
-//                
-                let r3 = try await nearestSettlementService.getNearestCity(lat: 55.7558, lng: 37.6173)
-//                print("Nearest City: \(r3)")
-                
-                let r4 = try await nearestStationsService.getNearestStations(lat: 55.7558, lng: 37.6173, distance: 10)
-//                print("Nearest Stations: \(r4)")
-                
-//                let r5 = try await scheduleService.getSchedule(station: "s9602371")
-//                print("Schedule: \(r5)")
-//                
-//                let r6 = try await searchService.search(from: "s9602371", to: "s9602528")
-//                print("Search: \(r6)")
-//                
-//                let r7 = try await stationsListService.getAllStations() // TODO: Тут API не возвращает в JSON
-//                print("All Stations: \(r7)")
-//                
-//                let r8 = try await threadService.getRouteStations(uid: "some-uuid-here")
-//                print("Route Stations: \(r8)")
+                try await carrierService.getCarrierInfo(code: "680") // ok
+                try await copyrightService.getCopyrightInfo() // ok
+                try await nearestSettlementService.getNearestCity(lat: 55.7558, lng: 37.6173) // ok
+                try await nearestStationsService.getNearestStations(lat: 55.7558, lng: 37.6173, distance: 10) // ok
+                try await searchService.search(from: "s9808848", to: "s9630756") // ok
+                try await stationsListService.getAllStations() // ok
+                try await scheduleService.getSchedule(station: "s9628059") // ТУТ ЧТО-ТО СЛОЖНО, дата приходит null
+                try await threadService.getRouteStations(uid: "some-uuid-here") // Я НЕ ПОНИМАЮ ГДЕ ВЗЯТЬ UID
                 
             } catch {
                 print("Error: \(error)")

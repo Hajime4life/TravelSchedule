@@ -18,7 +18,7 @@ final class ThreadService: ThreadServiceProtocol {
     
     func getRouteStations(uid: String) async throws -> ThreadStationsResponse {
         let response = try await client.getRouteStations(query: .init(apikey: apiKey, uid: uid))
-        
+        print(try response.ok.hashValue)
         return try response.ok.body.json
     }
     
