@@ -5,7 +5,7 @@ import OpenAPIRuntime
 struct ContentView: View {
     
     // TODO: Удалить после ревью (это для тестов)
-    let apiKey = "ну_тут_ваш_ключ_пожалуйста" // TODO: - Замените на реальный ключ
+    let apiKey = "9995803a-ea85-45dd-8f60-d8ae279985d8" // Замените на реальный ключ
 
     
     var body: some View {
