@@ -414,6 +414,12 @@ paths:
           required: false
           schema:
             type: string
+        - name: transportType
+          in: query
+          description: Тип транспорта
+          required: false
+          schema:
+            type: string
         - name: format
           in: query
           description: Формат ответа (json по умолчанию)
@@ -498,11 +504,11 @@ components:
                     description: Периодичность рейсов, например, "автобус раз в 10-15 минут".
                   begin_time:
                     type: string
-                    format: date-time
+                    #format: date-time
                     description: Время начала движения по нитке.
                   end_time:
                     type: string
-                    format: date-time
+                    #format: date-time
                     description: Время окончания движения по нитке.
               duration:
                 type: integer
@@ -521,11 +527,11 @@ components:
           $ref: '#/components/schemas/Station'
         departure:
           type: string
-          format: date-time
+          #format: date-time
           description: Время отправления
         arrival:
           type: string
-          format: date-time
+          #format: date-time
           description: Время прибытия
         thread:
           $ref: '#/components/schemas/Thread'
@@ -704,10 +710,10 @@ components:
       properties:
         arrival:
           type: string
-          format: date-time
+          #format: date-time
         departure:
           type: string
-          format: date-time
+          #format: date-time
         stop_time:
           type: integer
           description: Продолжительность остановки в секундах
@@ -751,11 +757,11 @@ components:
               description: Частота рейсов
             begin_time:
               type: string
-              format: date-time
+              #format: date-time
               description: Время начала
             end_time:
               type: string
-              format: date-time
+              #format: date-time
               description: Время окончания
     Directions:
       type: object
@@ -798,11 +804,11 @@ components:
           description: Периодичность рейсов
         begin_time:
           type: string
-          format: date-time
+          #format: date-time
           description: Время начала рейсов
         end_time:
           type: string
-          format: date-time
+          #format: date-time
           description: Время окончания рейсов
     ThreadStationsResponse:
       type: object

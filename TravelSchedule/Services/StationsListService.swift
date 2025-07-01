@@ -18,7 +18,7 @@ final class StationsListService: StationsListServiceProtocol {
     }
     
     func getAllStations() async throws -> AllStationsResponse {
-       let response = try await client.getAllStations(query: .init(apikey: apiKey))
+       let response = try await client.getAllStations(query: .init(apikey: apiKey, transportType: "train"))
 
        let responseBody = try response.ok.body.html
        print(try response.ok.hashValue)
