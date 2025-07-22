@@ -39,7 +39,6 @@ final class NearestStationsService: NearestStationsServiceProtocol {
     // response.ok: Доступ к успешному ответу
     // .body: Получаем тело ответа
     // .json: Получаем объект из JSON в ожидаемом типе NearestStations
-      print(try response.ok.hashValue)
     return try response.ok.body.json
   }
     

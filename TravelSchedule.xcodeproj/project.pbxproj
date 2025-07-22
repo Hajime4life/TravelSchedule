@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		0490F6062E2E74CE00C61DFD /* netfox in Frameworks */ = {isa = PBXBuildFile; productRef = 0490F6052E2E74CE00C61DFD /* netfox */; };
 		04C8F8612E0E7F3A009C9778 /* OpenAPIRuntime in Frameworks */ = {isa = PBXBuildFile; productRef = 04C8F8602E0E7F3A009C9778 /* OpenAPIRuntime */; };
 		04C8F8642E0E7F47009C9778 /* OpenAPIURLSession in Frameworks */ = {isa = PBXBuildFile; productRef = 04C8F8632E0E7F47009C9778 /* OpenAPIURLSession */; };
 /* End PBXBuildFile section */
@@ -30,6 +31,7 @@
 			files = (
 				04C8F8642E0E7F47009C9778 /* OpenAPIURLSession in Frameworks */,
 				04C8F8612E0E7F3A009C9778 /* OpenAPIRuntime in Frameworks */,
+				0490F6062E2E74CE00C61DFD /* netfox in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -75,6 +77,7 @@
 			packageProductDependencies = (
 				04C8F8602E0E7F3A009C9778 /* OpenAPIRuntime */,
 				04C8F8632E0E7F47009C9778 /* OpenAPIURLSession */,
+				0490F6052E2E74CE00C61DFD /* netfox */,
 			);
 			productName = TravelSchedule;
 			productReference = 04C8F84C2E0E7B19009C9778 /* TravelSchedule.app */;
@@ -101,6 +104,7 @@
 			knownRegions = (
 				en,
 				Base,
+				ru,
 			);
 			mainGroup = 04C8F8432E0E7B19009C9778;
 			minimizedProjectReferenceProxies = 1;
@@ -108,6 +112,7 @@
 				04C8F85F2E0E7F3A009C9778 /* XCRemoteSwiftPackageReference "swift-openapi-runtime" */,
 				04C8F8622E0E7F47009C9778 /* XCRemoteSwiftPackageReference "swift-openapi-urlsession" */,
 				04C8F8652E0E8454009C9778 /* XCRemoteSwiftPackageReference "swift-openapi-generator" */,
+				0490F6042E2E74CE00C61DFD /* XCRemoteSwiftPackageReference "netfox" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 04C8F84D2E0E7B19009C9778 /* Products */;
@@ -206,6 +211,7 @@
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = iphoneos;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 			};
 			name = Debug;
@@ -262,6 +268,7 @@
 				MTL_FAST_MATH = YES;
 				SDKROOT = iphoneos;
 				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_EMIT_LOC_STRINGS = YES;
 				VALIDATE_PRODUCT = YES;
 			};
 			name = Release;
@@ -276,6 +283,7 @@
 				DEVELOPMENT_TEAM = "";
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = "";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
@@ -311,6 +319,7 @@
 				DEVELOPMENT_TEAM = "";
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = "";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
@@ -360,6 +369,14 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
+		0490F6042E2E74CE00C61DFD /* XCRemoteSwiftPackageReference "netfox" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/kasketis/netfox";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 1.21.0;
+			};
+		};
 		04C8F85F2E0E7F3A009C9778 /* XCRemoteSwiftPackageReference "swift-openapi-runtime" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/apple/swift-openapi-runtime/";
@@ -387,6 +404,11 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		0490F6052E2E74CE00C61DFD /* netfox */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 0490F6042E2E74CE00C61DFD /* XCRemoteSwiftPackageReference "netfox" */;
+			productName = netfox;
+		};
 		04C8F8602E0E7F3A009C9778 /* OpenAPIRuntime */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = 04C8F85F2E0E7F3A009C9778 /* XCRemoteSwiftPackageReference "swift-openapi-runtime" */;

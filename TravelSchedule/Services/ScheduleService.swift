@@ -19,7 +19,6 @@ final class ScheduleService: ScheduleServiceProtocol {
     
     func getSchedule(station: String) async throws -> ScheduleResponse {
         let response = try await client.getStationSchedule(query: .init(apikey: apiKey, station: station))
-        print("\(try response.ok.hashValue)")
         
         let decoder = JSONDecoder()
         // Настройка кастомной стратегии декодирования дат
