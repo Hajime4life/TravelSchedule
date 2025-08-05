@@ -15,6 +15,7 @@ struct FilterView: View {
             FilterTimeItem(timeString: "День 12:00 - 18:00")
             FilterTimeItem(timeString: "Вечер 18:00 - 00:00")
             FilterTimeItem(timeString: "Ночь 00:00 - 06:00")
+            
             Text("Показывать варианты с пересадками")
                 .bold()
                 .font(.system(size: 24))

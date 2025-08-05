@@ -3,8 +3,8 @@ import OpenAPIURLSession
 
 struct CitySearchView: View {
     @EnvironmentObject private var viewModel: StationsViewModel
-    @Binding var selectedStation: Components.Schemas.Station?
-    @Binding var navigateToStationPicker: Bool
+    @EnvironmentObject private var navigation: NavigationViewModel
+    
     @State private var searchText: String = ""
     @State private var selectedCity: Components.Schemas.Settlement?
     
@@ -18,64 +18,61 @@ struct CitySearchView: View {
     }
     
     var body: some View {
-        List(filteredCities, id: \.self) { city in
-            Button(action: {
-                selectedCity = city
-            }) {
-                HStack {
-                    Text(city.title ?? "(Нет названия)")
-                        .padding(.vertical, 8)
-                    Spacer()
+        VStack {
+            
+            ScrollView {
+                if !filteredCities.isEmpty {
+                    LazyVStack(spacing: 0) {
+                        ForEach(filteredCities, id: \.self) { city in
+                            Button(action: {
+                                selectedCity = city
+                                navigation.push(.stationsList)
+                            }) {
+                                HStack {
+                                    Text(city.title ?? "(Нет названия)")
+                                        .padding(.vertical, 17)
+                                    Spacer()
+                                    Image(systemName: "chevron.forward")
+                                }
+                                .padding(.horizontal)
+                                .foregroundColor(.blackDay)
+                            }
+                            .buttonStyle(.plain)
+                        }
+                    }
                 }
             }
-            .listRowSeparator(.hidden)
-            .buttonStyle(.plain)
-        }
-        .searchable(
-            text: $searchText,
-            placement: .navigationBarDrawer(displayMode: .automatic),
-            prompt: Text("Введите запрос")
-        )
-        .listStyle(.plain)
-        .navigationTitle("Выбор города")
-        .navigationBarTitleDisplayMode(.inline)
-        .toolbar {
-            ToolbarItem(placement: .cancellationAction) {
-                Button("") {
-                    navigateToStationPicker = false
+            .searchable(
+                text: $searchText,
+                placement: .navigationBarDrawer(displayMode: .automatic),
+                prompt: Text("Введите запрос")
+            )
+            .navigationBarTitleDisplayMode(.inline)
+            .navigationTitle("Выбор города")
+            .overlay {
+                
+                if filteredCities.isEmpty && !searchText.isEmpty {
+                    Text("Город не найден")
+                        .font(.system(size: 24))
+                        .fontWeight(.bold)
+                        .foregroundColor(.blackDay)
+                } else if let error = viewModel.errorMessage {
+                    Text(error)
+                        .font(.system(size: 24))
+                        .fontWeight(.bold)
+                        .foregroundColor(.red)
                 }
-            }
-        }
-        .navigationDestination(isPresented: Binding(
-            get: { selectedCity != nil },
-            set: { if !$0 { selectedCity = nil } }
-        )) {
-            if let city = selectedCity {
-                StationSearchView(
-                    selectedSettlement: city,
-                    selectedStation: $selectedStation,
-                    navigateToStationPicker: $navigateToStationPicker
-                )
-                .environmentObject(viewModel)
-            }
-        }
-        .overlay {
-            if filteredCities.isEmpty {
-                Text("Город не найден")
-                    .font(.system(size: 24))
-                    .fontWeight(.bold)
-                    .foregroundColor(.blackDay)
-            } else if let error = viewModel.errorMessage {
-                Text(error)
-                    .font(.system(size: 24))
-                    .fontWeight(.bold)
-                    .foregroundColor(.red)
             }
         }
     }
 }
 
 #Preview {
-    CitySearchView(selectedStation: .constant(nil), navigateToStationPicker: .constant(false))
-        .environmentObject(StationsViewModel(apiKey: apiKey))
+    let st = StationsViewModel(apiKey: apiKey)
+    CitySearchView()
+        .environmentObject(st)
+        .environmentObject(NavigationViewModel())
+        .onAppear() {
+            st.loadCities()
+        }
 }

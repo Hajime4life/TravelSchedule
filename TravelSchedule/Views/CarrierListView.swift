@@ -2,29 +2,26 @@ import SwiftUI
 import OpenAPIURLSession
 
 struct CarrierListView: View {
-    let fromStation: Components.Schemas.Station
-    let toStation: Components.Schemas.Station
+    @EnvironmentObject var stationsViewModel: StationsViewModel
     
-    private var searchService: SearchService
+//    private var searchService: SearchService
     @State private var isFiltered: Bool = false
     @State private var segments: [Components.Schemas.Segment] = []
     @State private var errorMessage: String?
     
-    init(fromStation: Components.Schemas.Station, toStation: Components.Schemas.Station) {
-        self.fromStation = fromStation
-        self.toStation = toStation
-        self.searchService = SearchService(
-            apiKey: apiKey,
-            client: Client(
-                serverURL: try! Servers.Server1.url(),
-                transport: URLSessionTransport()
-            )
-        )
-    }
+//    init() {
+//        self.searchService = SearchService(
+//            apiKey: apiKey,
+//            client: Client(
+//                serverURL: try! Servers.Server1.url(),
+//                transport: URLSessionTransport()
+//            )
+//        )
+//    }
     
     var body: some View {
         VStack {
-            Text("\(fromStation.title ?? "Откуда") → \(toStation.title ?? "Куда")")
+            Text("\(stationsViewModel.selectedFromStation?.title ?? "Откуда") → \(stationsViewModel.selectedToStation?.title ?? "Куда")")
                 .font(.system(size: 24))
                 .bold()
             
@@ -75,26 +72,26 @@ struct CarrierListView: View {
             .padding(.bottom, 24)
         }
         .onAppear {
-            print("From station: \(fromStation.codes?.yandex_code ?? "N/A")")
-            print("To station: \(toStation.codes?.yandex_code ?? "N/A")")
             loadRaces()
         }
     }
     
     private func loadRaces() {
-        Task {
-            do {
-                let response = try await searchService.search(
-                    from: fromStation.codes?.yandex_code ?? "",
-                    to: toStation.codes?.yandex_code ?? ""
-                )
-                segments = response.segments ?? []
-                errorMessage = nil
-            } catch {
-                errorMessage = "Ошибка загрузки рейсов: \(error.localizedDescription)"
-                segments = []
-            }
-        }
+//        if let fromStation = stationsViewModel.selectedFromStation, let toStation = stationsViewModel.selectedFromStation {
+//            Task {
+//                do {
+//                    let response = try await searchService.search(
+//                        from: fromStation.codes?.yandex_code ?? "",
+//                        to: toStation.codes?.yandex_code ?? ""
+//                    )
+//                    segments = response.segments ?? []
+//                    errorMessage = nil
+//                } catch {
+//                    errorMessage = "Ошибка загрузки рейсов: \(error.localizedDescription)"
+//                    segments = []
+//                }
+//            }
+//        }
     }
 }
 
@@ -175,15 +172,15 @@ struct CarrierItemView: View {
     }
 }
 
-#Preview {
-    CarrierListView(
-        fromStation: Components.Schemas.Station(
-            title: "Москва (Ярославский вокзал)",
-            codes: .init(yandex_code: "s2000006")
-        ),
-        toStation: Components.Schemas.Station(
-            title: "Санкт Петербург (Балтийский вокзал)",
-            codes: .init(yandex_code: "s2004004")
-        )
-    )
-}
+//#Preview {
+//    CarrierListView(
+//        fromStation: Components.Schemas.Station(
+//            title: "Москва (Ярославский вокзал)",
+//            codes: .init(yandex_code: "s2000006")
+//        ),
+//        toStation: Components.Schemas.Station(
+//            title: "Санкт Петербург (Балтийский вокзал)",
+//            codes: .init(yandex_code: "s2004004")
+//        )
+//    )
+//}

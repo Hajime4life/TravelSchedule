@@ -2,94 +2,123 @@ import SwiftUI
 import OpenAPIURLSession
 
 struct MainView: View {
+    @EnvironmentObject var stationsViewModel: StationsViewModel
+    @EnvironmentObject var navigation: NavigationViewModel
     @State private var searchTextFrom: String = "Откуда"
     @State private var searchTextTo: String = "Куда"
-    @State private var selectedFromStation: Components.Schemas.Station? = nil
-    @State private var selectedToStation: Components.Schemas.Station? = nil
-    @State private var navigateToStationPicker = false
-    @State private var isSelectingFrom = true
-    
+
     var body: some View {
-        NavigationStack {
+        NavigationStack(path: $navigation.path) {
             VStack {
-                HStack(spacing: 0) {
-                    VStack(spacing: 0) {
-                        Text(searchTextFrom)
-                            .frame(maxWidth: .infinity, alignment: .leading)
-                            .opacity(selectedFromStation == nil ? 0.25 : 1)
-                            .onTapGesture {
-                                isSelectingFrom = true
-                                navigateToStationPicker = true
-                            }
-                            .padding(.vertical, 7)
-                        Text(searchTextTo)
-                            .frame(maxWidth: .infinity, alignment: .leading)
-                            .opacity(selectedToStation == nil ? 0.25 : 1)
-                            .onTapGesture {
-                                isSelectingFrom = false
-                                navigateToStationPicker = true
-                            }
-                            .padding(.vertical, 7)
-                    }
-                    .padding()
-                    .background(Color.whiteUniversal)
-                    .cornerRadius(20)
-                    
+                StationSelectionView(searchTextFrom: $searchTextFrom, searchTextTo: $searchTextTo)
+
+                if stationsViewModel.isStationsSelected {
                     Button(action: {
-                        // TODO:  Проверить ок ли?
-                        if selectedFromStation != nil && selectedToStation != nil {
-                            let tempText = searchTextFrom
-                            searchTextFrom = searchTextTo
-                            searchTextTo = tempText
-                            
-                            let tempStation = selectedFromStation
-                            selectedFromStation = selectedToStation
-                            selectedToStation = tempStation
-                        }
+                        navigation.push(.carrierList)
                     }) {
-                        Image("switch_ic")
-                            .frame(width: 32, height: 32)
+                        Text("Найти")
+                            .fontWeight(.bold)
+                            .foregroundColor(.whiteUniversal)
+                            .padding(.horizontal, 45)
+                            .padding(.vertical, 20)
+                            .background(Color.blueUniversal)
+                            .cornerRadius(16)
                     }
-                    .padding(.leading)
-                }
-                .padding()
-                .background(Color.blueUniversal)
-                .cornerRadius(20)
-                
-                if let from = selectedFromStation, let to = selectedToStation {
-                    NavigationLink(destination: CarrierListView(
-                        fromStation: from,
-                        toStation: to)) {
-                            Text("Найти")
-                                .fontWeight(.bold)
-                                .foregroundColor(.whiteUniversal)
-                                .padding(.horizontal, 45)
-                                .padding(.vertical, 20)
-                                .background(Color.blueUniversal)
-                                .cornerRadius(16)
-                        }
                 }
 
                 Spacer()
             }
             .padding(.horizontal)
-            .navigationDestination(isPresented: $navigateToStationPicker) {
-                CitySearchView(
-                    selectedStation: isSelectingFrom ? $selectedFromStation : $selectedToStation,
-                    navigateToStationPicker: $navigateToStationPicker
-                )
+            .navigationDestination(for: Screen.self, destination: destinationView)
+            .onChange(of: stationsViewModel.selectedFromStation) { from in
+                searchTextFrom = from?.title ?? "Откуда"
+                navigation.popToRoot()
             }
-            .onChange(of: selectedFromStation) { newValue in
-                searchTextFrom = newValue?.title ?? "Откуда"
+            .onChange(of: stationsViewModel.selectedToStation) { to in
+                searchTextTo = to?.title ?? "Куда"
+                navigation.popToRoot()
             }
-            .onChange(of: selectedToStation) { newValue in
-                searchTextTo = newValue?.title ?? "Куда"
-            }
+        }
+        
+    }
+}
+
+extension MainView {
+    @ViewBuilder
+    private func destinationView(for screen: Screen) -> some View {
+        switch screen {
+        case .home:
+            EmptyView()
+        case .cityList:
+            CitySearchView()
+                .toolbar(.hidden, for: .tabBar)
+                .environmentObject(stationsViewModel)
+                .environmentObject(navigation)
+        case .stationsList:
+            StationSearchView()
+                .toolbar(.hidden, for: .tabBar)
+                .environmentObject(stationsViewModel)
+                .environmentObject(navigation)
+        case .carrierList:
+            CarrierListView()
+                .toolbar(.hidden, for: .tabBar)
+                .environmentObject(stationsViewModel)
+                .environmentObject(navigation)
         }
     }
 }
 
-#Preview {
-    MainView()
+struct StationSelectionView: View {
+    @EnvironmentObject var stationsViewModel: StationsViewModel
+    @EnvironmentObject var navigation: NavigationViewModel
+    @Binding var searchTextFrom: String
+    @Binding var searchTextTo: String
+
+    var body: some View {
+        HStack(spacing: 0) {
+            VStack(spacing: 0) {
+                Text(searchTextFrom)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .opacity(stationsViewModel.selectedFromStation == nil ? 0.25 : 1)
+                    .onTapGesture {
+                        stationsViewModel.isSelectingFrom = true
+                        navigation.push(.cityList)
+                    }
+                    .padding(.vertical, 7)
+
+                Text(searchTextTo)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .opacity(stationsViewModel.selectedToStation == nil ? 0.25 : 1)
+                    .onTapGesture {
+                        stationsViewModel.isSelectingFrom = false
+                        navigation.push(.cityList)
+                    }
+                    .padding(.vertical, 7)
+            }
+            .padding()
+            .background(Color.whiteUniversal)
+            .cornerRadius(20)
+
+            Button(action: {
+                stationsViewModel.switchStations()
+            }) {
+                Image("switch_ic")
+                    .frame(width: 32, height: 32)
+            }
+            .padding(.leading)
+            .disabled(!stationsViewModel.isStationsSelected)
+        }
+        .padding()
+        .background(Color.blueUniversal)
+        .cornerRadius(20)
+    }
 }
 
+
+#Preview {
+    let viewModel = StationsViewModel(apiKey: "your-api-key")
+    let navigation = NavigationViewModel()
+    return MainView()
+        .environmentObject(viewModel)
+        .environmentObject(navigation)
+}

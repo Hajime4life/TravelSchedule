@@ -21,7 +21,6 @@ final class ScheduleService: ScheduleServiceProtocol {
         let response = try await client.getStationSchedule(query: .init(apikey: apiKey, station: station))
         
         let decoder = JSONDecoder()
-        // Настройка кастомной стратегии декодирования дат
         decoder.dateDecodingStrategy = .custom { decoder in
             let container = try decoder.singleValueContainer()
             let dateString = try container.decode(String.self)
@@ -29,7 +28,7 @@ final class ScheduleService: ScheduleServiceProtocol {
             let formatter = DateFormatter()
             formatter.locale = Locale(identifier: "en_US_POSIX")
             formatter.timeZone = TimeZone(secondsFromGMT: 0)
-            formatter.dateFormat = "HH:mm" // Формат времени из JSON
+            formatter.dateFormat = "HH:mm"
             
             if let date = formatter.date(from: dateString) {
                 return date

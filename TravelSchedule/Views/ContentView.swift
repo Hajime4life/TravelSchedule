@@ -2,6 +2,8 @@ import SwiftUI
 
 struct ContentView: View {
     @StateObject private var viewModel = StationsViewModel(apiKey: apiKey)
+    @StateObject var navigation = NavigationViewModel()
+    
     @State private var selectedTabIndex: Int8 = 0
     
     private enum TabItemType: Int8, CaseIterable {
@@ -19,6 +21,7 @@ struct ContentView: View {
             return self.rawValue
         }
     }
+    
     
     var body: some View {
         ZStack {
@@ -45,6 +48,7 @@ struct ContentView: View {
                 }
             }
         }
+        .environmentObject(navigation)
         .onAppear {
             viewModel.loadCities()
         }

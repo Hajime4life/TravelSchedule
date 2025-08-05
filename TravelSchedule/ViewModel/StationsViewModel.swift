@@ -7,16 +7,28 @@ class StationsViewModel: ObservableObject {
     @Published var isLoading: Bool = false
     @Published var errorMessage: String?
     
+    @Published var isSelectingFrom: Bool = true // Чтобы понять "Откуда" или "Куда" выбрали
+    @Published var selectedFromStation: Components.Schemas.Station? = nil
+    @Published var selectedToStation: Components.Schemas.Station? = nil
+    
+    var isStationsSelected: Bool {
+        selectedFromStation != nil && selectedToStation != nil
+    }
+    
     private let stationsService: StationsService
     
     init(apiKey: String) {
-        self.stationsService = StationsService(
-            apiKey: apiKey,
-            client: Client(
-                serverURL: try! Servers.Server1.url(),
-                transport: URLSessionTransport()
+        do {
+            self.stationsService = StationsService(
+                apiKey: apiKey,
+                client: Client(
+                    serverURL: try Servers.Server1.url(),
+                    transport: URLSessionTransport()
+                )
             )
-        )
+        } catch {
+            fatalError("Ошибка инициализации StationsService: \(error.localizedDescription)")
+        }
     }
     
     func loadCities() {
@@ -43,5 +55,21 @@ class StationsViewModel: ObservableObject {
             }
         }
     }
-}
+    
+    func switchStations() {
+        if self.isStationsSelected {
+            let tempStation = selectedFromStation
+            selectedFromStation = selectedToStation
+            selectedToStation = tempStation
+        }
+    }
+    
+    func setSelectedStation(_ station: Components.Schemas.Station?) {
+        if isSelectingFrom {
+            selectedFromStation = station
+        } else {
+            selectedToStation = station
+        }
+    }
 
+}
