@@ -4,6 +4,7 @@ import OpenAPIURLSession
 struct MainView: View {
     @EnvironmentObject var stationsViewModel: StationsViewModel
     @EnvironmentObject var navigation: NavigationViewModel
+    @EnvironmentObject var carrierViewModel: CarrierViewModel
     @State private var searchTextFrom: String = "Откуда"
     @State private var searchTextTo: String = "Куда"
 
@@ -53,16 +54,19 @@ extension MainView {
             CitySearchView()
                 .toolbar(.hidden, for: .tabBar)
                 .environmentObject(stationsViewModel)
+                .environmentObject(carrierViewModel)
                 .environmentObject(navigation)
         case .stationsList:
             StationSearchView()
                 .toolbar(.hidden, for: .tabBar)
                 .environmentObject(stationsViewModel)
+                .environmentObject(carrierViewModel)
                 .environmentObject(navigation)
         case .carrierList:
             CarrierListView()
                 .toolbar(.hidden, for: .tabBar)
                 .environmentObject(stationsViewModel)
+                .environmentObject(carrierViewModel)
                 .environmentObject(navigation)
         }
     }
@@ -116,7 +120,7 @@ struct StationSelectionView: View {
 
 
 #Preview {
-    let viewModel = StationsViewModel(apiKey: "your-api-key")
+    let viewModel = StationsViewModel()
     let navigation = NavigationViewModel()
     return MainView()
         .environmentObject(viewModel)

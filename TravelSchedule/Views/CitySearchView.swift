@@ -68,7 +68,7 @@ struct CitySearchView: View {
 }
 
 #Preview {
-    let st = StationsViewModel(apiKey: apiKey)
+    let st = StationsViewModel()
     CitySearchView()
         .environmentObject(st)
         .environmentObject(NavigationViewModel())

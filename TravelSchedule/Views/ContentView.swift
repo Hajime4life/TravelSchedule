@@ -1,8 +1,9 @@
 import SwiftUI
 
 struct ContentView: View {
-    @StateObject private var viewModel = StationsViewModel(apiKey: apiKey)
+    @StateObject private var viewModel = StationsViewModel()
     @StateObject var navigation = NavigationViewModel()
+    @StateObject var carrierViewModel = CarrierViewModel()
     
     @State private var selectedTabIndex: Int8 = 0
     
@@ -31,6 +32,7 @@ struct ContentView: View {
                 TabView(selection: $selectedTabIndex) {
                     MainView()
                         .environmentObject(viewModel)
+                        .environmentObject(carrierViewModel)
                         .tabItem {
                             TabItem(
                                 iconName: TabItemType.schedule.iconName,

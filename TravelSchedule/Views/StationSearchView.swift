@@ -26,24 +26,25 @@ struct StationSearchView: View {
         VStack {
             
             ScrollView {
-                LazyVStack(spacing: 0) {
-                    ForEach(filteredStations, id: \.self) { station in
-                        Button(action: {
-                            stationsViewModel.setSelectedStation(station)
-                        }) {
-                            HStack {
-                                Text(station.title ?? "(Нет названия)")
-                                    .padding(.vertical, 17)
-                                Spacer()
-                                Image(systemName: "chevron.forward")
+                    LazyVStack(spacing: 0) {
+                        ForEach(filteredStations, id: \.self) { station in
+                            Button(action: {
+                                stationsViewModel.setSelectedStation(station)
+                            }) {
+                                HStack {
+                                    Text(station.title ?? "(Нет названия)")
+                                        .padding(.vertical, 17)
+                                    Spacer()
+                                    Image(systemName: "chevron.forward")
+                                }
+                                .foregroundColor(.blackDay)
+                                .padding(.horizontal)
+                                .contentShape(Rectangle())
                             }
-                            .foregroundColor(.blackDay)
-                            .padding(.horizontal)
-                            .contentShape(Rectangle())
+                            .buttonStyle(.plain)
+                            
                         }
-                        .buttonStyle(.plain)
-
-                    }
+                    
                 }
             }
             .searchable(
@@ -67,6 +68,6 @@ struct StationSearchView: View {
 
 #Preview {
     StationSearchView()
-        .environmentObject(StationsViewModel(apiKey: "your-api-key"))
+        .environmentObject(StationsViewModel())
         .environmentObject(NavigationViewModel())
 }

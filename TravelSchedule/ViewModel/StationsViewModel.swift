@@ -7,7 +7,7 @@ class StationsViewModel: ObservableObject {
     @Published var isLoading: Bool = false
     @Published var errorMessage: String?
     
-    @Published var isSelectingFrom: Bool = true // Чтобы понять "Откуда" или "Куда" выбрали
+    @Published var isSelectingFrom: Bool = true
     @Published var selectedFromStation: Components.Schemas.Station? = nil
     @Published var selectedToStation: Components.Schemas.Station? = nil
     
@@ -17,7 +17,7 @@ class StationsViewModel: ObservableObject {
     
     private let stationsService: StationsService
     
-    init(apiKey: String) {
+    init() {
         do {
             self.stationsService = StationsService(
                 apiKey: apiKey,
@@ -44,7 +44,11 @@ class StationsViewModel: ObservableObject {
                     return stations.contains { $0.transport_type == "train" }
                 }
                 await MainActor.run {
-                    self.allCities = filteredCities
+                    self.allCities = filteredCities.map { settlement in
+                        var modifiedSettlement = settlement
+                        modifiedSettlement.stations = settlement.stations?.filter { $0.transport_type == "train" }
+                        return modifiedSettlement
+                    }
                     self.isLoading = false
                 }
             } catch {
@@ -57,7 +61,7 @@ class StationsViewModel: ObservableObject {
     }
     
     func switchStations() {
-        if self.isStationsSelected {
+        if isStationsSelected {
             let tempStation = selectedFromStation
             selectedFromStation = selectedToStation
             selectedToStation = tempStation
@@ -65,11 +69,16 @@ class StationsViewModel: ObservableObject {
     }
     
     func setSelectedStation(_ station: Components.Schemas.Station?) {
+        guard let station = station, station.transport_type == "train" else { return }
         if isSelectingFrom {
             selectedFromStation = station
         } else {
             selectedToStation = station
         }
     }
-
+    
+    // Для фильтрации (только поезда)
+    func getTrainStations(from settlement: Components.Schemas.Settlement) -> [Components.Schemas.Station] {
+        return settlement.stations?.filter { $0.transport_type == "train" } ?? []
+    }
 }

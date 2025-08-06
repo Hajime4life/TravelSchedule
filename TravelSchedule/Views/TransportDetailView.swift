@@ -1,31 +1,53 @@
 import SwiftUI
+import OpenAPIURLSession
 
 struct TransportDetailView: View {
+    let carrier: Components.Schemas.Carrier
+    
     var body: some View {
         VStack(alignment: .leading) {
-            Image("mock_icon")
-                .resizable()
-                .aspectRatio(contentMode: .fit)
-                .frame(maxWidth: .infinity, alignment: .center)
-                .frame(height: 104)
             
-            Text("ОАО «РЖД»")
+            if let logoURLString = carrier.logo,
+               let url = URL(string: logoURLString) {
+                AsyncImage(url: url) { image in
+                    image
+                        .resizable()
+                        .aspectRatio(contentMode: .fit)
+                        .frame(maxWidth: .infinity, alignment: .center)
+                        .frame(height: 104)
+                } placeholder: {
+                    ProgressView()
+                }
+            } else {
+                Image(systemName: "photo.fill")
+                    .resizable()
+                    .aspectRatio(contentMode: .fit)
+                    .frame(maxWidth: .infinity, alignment: .center)
+                    .frame(height: 104)
+            }
+            
+            Text(carrier.title ?? "")
                 .font(.system(size: 24))
                 .bold()
             
-            Text("E-mail")
-                .padding(.top)
+            if let email = carrier.email {
+                Text("E-mail")
+                    .padding(.top)
+                
+                Link(email, destination: URL(string: email)!)
+                    .foregroundColor(.blueUniversal)
+                    .font(.system(size: 12))
+            }
             
-            Link("i.lozgkina@yandex.ru", destination: URL(string: "mailto:i.lozgkina@yandex.ru")!)
-                .foregroundColor(.blueUniversal)
-                .font(.system(size: 12))
             
-            Text("Телефон")
-                .padding(.top)
-            
-            Link("+7 (904) 329-27-71", destination: URL(string: "tel:+79043292771")!)
-                .foregroundColor(.blueUniversal)
-                .font(.system(size: 12))
+            if let phone = carrier.phone {
+                Text("Телефон")
+                    .padding(.top)
+                
+                Link(phone, destination: URL(string: "tel:\(phone)")!)
+                    .foregroundColor(.blueUniversal)
+                    .font(.system(size: 12))
+            }
             
             Spacer()
         }
@@ -33,8 +55,4 @@ struct TransportDetailView: View {
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding(.horizontal)
     }
-}
-
-#Preview {
-    TransportDetailView()
 }

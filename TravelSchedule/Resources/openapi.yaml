@@ -540,6 +540,9 @@ components:
         duration:
           type: integer
           description: Длительность рейса в секундах
+        start_date:
+          type: string
+          description: День старта
     Pagination:
       type: object
       properties:
