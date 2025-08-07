@@ -84,14 +84,6 @@ struct FilterView: View {
             .frame(maxHeight: .infinity, alignment: .bottom)
             .padding(.bottom, 24)
         }
-        .toolbar {
-            ToolbarItem(placement: .navigationBarTrailing) {
-                Button("Сбросить") {
-                    carrierViewModel.resetFilters()
-                }
-                .disabled(!carrierViewModel.isFilterApplied)
-            }
-        }
     }
 }
 

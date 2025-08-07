@@ -30,8 +30,8 @@ struct CarrierItemView: View {
                 VStack(alignment: .leading) {
                     Text(segment.thread?.carrier?.title ?? "Перевозчик")
                         .font(.system(size: 20))
-                    if false { // TODO: заглушка для has_transfers
-                        Text("С пересадкой")
+                    if segment.has_transfers ?? false {
+                        Text("С пересадкой в Костроме")
                             .foregroundColor(.redUniversal)
                             .lineSpacing(0.4)
                     }

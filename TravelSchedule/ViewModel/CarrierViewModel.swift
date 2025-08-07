@@ -8,7 +8,7 @@ class CarrierViewModel: ObservableObject {
     @Published var filteredSegments: [Components.Schemas.Segment] = []
     @Published var isFilterApplied: Bool = false
     @Published var selectedTimeIntervals: Set<String> = []
-    @Published var showTransferRaces: Bool? = nil // Изменено на опциональный Bool
+    @Published var showTransferRaces: Bool? = nil
     
     private let searchService: SearchService
     
@@ -28,14 +28,13 @@ class CarrierViewModel: ObservableObject {
             Task {
                 do {
                     let response = try await searchService.search(
-                        from: "s9613091", //fromStation.codes?.yandex_code ?? "",
-                        to: "s2000003", //toStation.codes?.yandex_code ?? "",
-                        transfers: showTransferRaces ?? true // Используем true по умолчанию, если nil
+                        from: fromStation.codes?.yandex_code ?? "",
+                        to: toStation.codes?.yandex_code ?? "",
+                        transfers: showTransferRaces ?? true
                     )
                     segments = response.segments ?? []
                     applyFilters()
                 } catch {
-                    print("Ошибка загрузки рейсов: \(error.localizedDescription)")
                     segments = []
                     filteredSegments = []
                 }
@@ -84,7 +83,7 @@ class CarrierViewModel: ObservableObject {
     
     func resetFilters() {
         selectedTimeIntervals.removeAll()
-        showTransferRaces = nil // Сбрасываем до nil
+        showTransferRaces = nil
         filteredSegments = segments
         isFilterApplied = false
     }
