@@ -543,6 +543,9 @@ components:
         start_date:
           type: string
           description: День старта
+        has_transfers:
+          type: boolean
+          description: Признак наличия пересадок по маршруту.
     Pagination:
       type: object
       properties:

@@ -1,10 +1,11 @@
 import OpenAPIRuntime
 import OpenAPIURLSession
+import Foundation
 
 typealias Segments = Components.Schemas.Segments
 
 protocol SearchServiceProtocol {
-  func search(from: String, to: String) async throws -> Segments
+  func search(from: String, to: String, transfers: Bool) async throws -> Segments
 }
 
 final class SearchService: SearchServiceProtocol {
@@ -16,12 +17,18 @@ final class SearchService: SearchServiceProtocol {
       self.client = client
   }
   
-  func search(from: String, to: String) async throws -> Segments {
-    let response = try await client.getSchedualBetweenStations(query: .init(
-        apikey: apiKey,
-        from: from,
-        to: to)
-    )
-    return try response.ok.body.json
+    func search(from: String, to: String, transfers: Bool = true) async throws -> Segments {
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "yyyy-MM-dd"
+        let todayString = dateFormatter.string(from: Date())
+        let response = try await client.getSchedualBetweenStations(query: .init(
+            apikey: apiKey,
+            from: from,
+            to: to,
+            date: todayString,
+            transfers: transfers
+            )
+        )
+        return try response.ok.body.json
   }
 }

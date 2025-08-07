@@ -5,7 +5,7 @@ struct CarrierListView: View {
     @EnvironmentObject var stationsViewModel: StationsViewModel
     @EnvironmentObject var navigation: NavigationViewModel
     @EnvironmentObject var carrierViewModel: CarrierViewModel
-    @State private var isFiltered: Bool = false
+
     
     var body: some View {
         VStack {
@@ -15,7 +15,7 @@ struct CarrierListView: View {
             
             ScrollView {
                 LazyVStack(spacing: 8) {
-                    ForEach(carrierViewModel.segments, id: \.self) { segment in
+                    ForEach(carrierViewModel.filteredSegments, id: \.self) { segment in
                         if let carrier = segment.thread?.carrier {
                             NavigationLink(destination: TransportDetailView(carrier: carrier)) {
                                 CarrierItemView(segment: segment)
@@ -27,7 +27,7 @@ struct CarrierListView: View {
             }
         }
         .overlay {
-            if carrierViewModel.segments.isEmpty {
+            if carrierViewModel.filteredSegments.isEmpty {
                 Text("Вариантов нет")
                     .font(.system(size: 24))
                     .fontWeight(.bold)
@@ -44,7 +44,7 @@ struct CarrierListView: View {
                         .foregroundColor(.whiteUniversal)
                         .overlay(
                             Group {
-                                if isFiltered {
+                                if carrierViewModel.isFilterApplied {
                                     Circle().fill(.redUniversal).frame(width: 8, height: 8)
                                         .offset(x: UIScreen.main.bounds.width / 5)
                                 }
