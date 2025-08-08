@@ -10,9 +10,11 @@ struct MainView: View {
 
     var body: some View {
         NavigationStack(path: $navigation.path) {
+            ZStack {
+                Color.whiteDay.ignoresSafeArea()
             VStack {
                 StationSelectionView(searchTextFrom: $searchTextFrom, searchTextTo: $searchTextTo)
-
+                
                 if stationsViewModel.isStationsSelected {
                     Button(action: {
                         navigation.push(.carrierList)
@@ -26,7 +28,7 @@ struct MainView: View {
                             .cornerRadius(16)
                     }
                 }
-
+                
                 Spacer()
             }
             .padding(.horizontal)
@@ -39,7 +41,24 @@ struct MainView: View {
                 searchTextTo = to?.title ?? "Куда"
                 navigation.popToRoot()
             }
+                
+            if let error = stationsViewModel.error {
+                ErrorView(error: error) {
+                    stationsViewModel.clearError()
+                    stationsViewModel.loadCities()
+                }
+                .ignoresSafeArea()
+            } else if let error = carrierViewModel.error {
+                ErrorView(error: error) {
+                    carrierViewModel.clearError()
+                    carrierViewModel.loadRaces(stationsViewModel: stationsViewModel)
+                }
+                .ignoresSafeArea()
+            }
         }
+            
+        }
+        
         
     }
 }
@@ -83,21 +102,21 @@ struct StationSelectionView: View {
             VStack(spacing: 0) {
                 Text(searchTextFrom)
                     .frame(maxWidth: .infinity, alignment: .leading)
-                    .opacity(stationsViewModel.selectedFromStation == nil ? 0.25 : 1)
                     .onTapGesture {
                         stationsViewModel.isSelectingFrom = true
                         navigation.push(.cityList)
                     }
                     .padding(.vertical, 7)
+                    .foregroundColor(stationsViewModel.selectedFromStation == nil ? .grayUniversal : .blackUniversal)
 
                 Text(searchTextTo)
                     .frame(maxWidth: .infinity, alignment: .leading)
-                    .opacity(stationsViewModel.selectedToStation == nil ? 0.25 : 1)
                     .onTapGesture {
                         stationsViewModel.isSelectingFrom = false
                         navigation.push(.cityList)
                     }
                     .padding(.vertical, 7)
+                    .foregroundColor(stationsViewModel.selectedToStation == nil ? .grayUniversal : .blackUniversal)
             }
             .padding()
             .background(Color.whiteUniversal)

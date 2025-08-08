@@ -5,7 +5,7 @@ struct RadioButtonToggleStyle: ToggleStyle {
         ZStack {
             Circle()
                 .frame(width: 20, height: 20)
-                .foregroundColor(.white)
+                .foregroundColor(.whiteUniversal)
                 .overlay(
                     Circle()
                         .stroke(configuration.isOn ? Color.blackDay : Color.blackDay, lineWidth: 2)

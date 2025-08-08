@@ -54,5 +54,6 @@ struct TransportDetailView: View {
         .navigationTitle("Информация о перевозчике")
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding(.horizontal)
+        .background(Color.whiteDay)
     }
 }

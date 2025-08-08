@@ -56,13 +56,10 @@ struct CitySearchView: View {
                         .font(.system(size: 24))
                         .fontWeight(.bold)
                         .foregroundColor(.blackDay)
-                } else if let error = viewModel.errorMessage {
-                    Text(error)
-                        .font(.system(size: 24))
-                        .fontWeight(.bold)
-                        .foregroundColor(.red)
                 }
             }
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .background(Color.whiteDay)
         }
     }
 }

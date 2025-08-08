@@ -8,7 +8,7 @@ struct RadioButton: View {
         ZStack {
             Circle()
                 .frame(width: 20, height: 20)
-                .foregroundColor(.white)
+                .foregroundColor(.whiteUniversal)
                 .overlay(
                     Circle()
                         .stroke(isSelected ? Color.blackDay : Color.blackDay, lineWidth: 2)
@@ -23,4 +23,8 @@ struct RadioButton: View {
             action()
         }
     }
+}
+
+#Preview {
+    RadioButton(isSelected: true, action: {})
 }

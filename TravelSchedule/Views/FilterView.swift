@@ -84,6 +84,8 @@ struct FilterView: View {
             .frame(maxHeight: .infinity, alignment: .bottom)
             .padding(.bottom, 24)
         }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .background(Color.whiteDay)
     }
 }
 

@@ -1,7 +1,8 @@
 import SwiftUI
 
 struct ContentView: View {
-    @StateObject private var viewModel = StationsViewModel()
+    @Environment(\.colorScheme) private var colorScheme
+    @StateObject private var stationsViewModel = StationsViewModel()
     @StateObject var navigation = NavigationViewModel()
     @StateObject var carrierViewModel = CarrierViewModel()
     
@@ -23,15 +24,14 @@ struct ContentView: View {
         }
     }
     
-    
     var body: some View {
         ZStack {
-            if viewModel.isLoading {
+            if stationsViewModel.isLoading {
                 LaunchScreenView()
             } else {
                 TabView(selection: $selectedTabIndex) {
                     MainView()
-                        .environmentObject(viewModel)
+                        .environmentObject(stationsViewModel)
                         .environmentObject(carrierViewModel)
                         .tabItem {
                             TabItem(
@@ -41,6 +41,8 @@ struct ContentView: View {
                         .tag(TabItemType.schedule.index)
                     
                     Text("Настройки")
+                        .frame(maxWidth: .infinity, maxHeight: .infinity)
+                        .background(Color.whiteDay)
                         .tabItem {
                             TabItem(
                                 iconName: TabItemType.settings.iconName,
@@ -52,12 +54,12 @@ struct ContentView: View {
         }
         .environmentObject(navigation)
         .onAppear {
-            viewModel.loadCities()
+            stationsViewModel.loadCities()
         }
     }
     
     @ViewBuilder private func TabItem(iconName: String, isActive: Bool) -> some View {
-        Image("\(iconName)\(isActive ? "_active" : "")")
+        Image("\(iconName)\(isActive ? "_active" : "")\(isActive && colorScheme == .dark ? "_night": "")")
             .resizable()
             .aspectRatio(contentMode: .fit)
             .frame(width: 30, height: 30)

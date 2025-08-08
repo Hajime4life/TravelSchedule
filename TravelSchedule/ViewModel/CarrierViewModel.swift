@@ -9,6 +9,7 @@ class CarrierViewModel: ObservableObject {
     @Published var isFilterApplied: Bool = false
     @Published var selectedTimeIntervals: Set<String> = []
     @Published var showTransferRaces: Bool? = nil
+    @Published var error: NetworkError? = nil
     
     private let searchService: SearchService
     
@@ -34,7 +35,17 @@ class CarrierViewModel: ObservableObject {
                     )
                     segments = response.segments ?? []
                     applyFilters()
+                    error = nil
+                } catch NetworkError.noInternet {
+                    error = .noInternet
+                    segments = []
+                    filteredSegments = []
+                } catch NetworkError.serverError {
+                    error = .serverError
+                    segments = []
+                    filteredSegments = []
                 } catch {
+                    self.error = .serverError
                     segments = []
                     filteredSegments = []
                 }
@@ -79,6 +90,10 @@ class CarrierViewModel: ObservableObject {
         }
         
         isFilterApplied = !selectedTimeIntervals.isEmpty || showTransferRaces != nil
+    }
+    
+    func clearError() {
+        error = nil
     }
     
     func resetFilters() {

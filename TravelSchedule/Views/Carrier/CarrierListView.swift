@@ -5,8 +5,8 @@ struct CarrierListView: View {
     @EnvironmentObject var stationsViewModel: StationsViewModel
     @EnvironmentObject var navigation: NavigationViewModel
     @EnvironmentObject var carrierViewModel: CarrierViewModel
-
     
+
     var body: some View {
         VStack {
             Text("\(stationsViewModel.selectedFromStation?.title ?? "Откуда") → \(stationsViewModel.selectedToStation?.title ?? "Куда")")
@@ -59,6 +59,8 @@ struct CarrierListView: View {
         .onAppear {
             carrierViewModel.loadRaces(stationsViewModel: stationsViewModel)
         }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .background(Color.whiteDay)
     }
 }
 

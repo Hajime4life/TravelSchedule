@@ -5,7 +5,7 @@ import Combine
 class StationsViewModel: ObservableObject {
     @Published var allCities: [Components.Schemas.Settlement] = []
     @Published var isLoading: Bool = false
-    @Published var errorMessage: String?
+    @Published var error: NetworkError? = nil
     
     @Published var isSelectingFrom: Bool = true
     @Published var selectedFromStation: Components.Schemas.Station? = nil
@@ -34,7 +34,7 @@ class StationsViewModel: ObservableObject {
     func loadCities() {
         guard !isLoading else { return }
         isLoading = true
-        errorMessage = nil
+        error = nil
         
         Task {
             do {
@@ -50,14 +50,26 @@ class StationsViewModel: ObservableObject {
                         return modifiedSettlement
                     }
                     self.isLoading = false
+                    self.error = nil
+                }
+            } catch URLError.Code.notConnectedToInternet {
+                await MainActor.run {
+                    self.error = .noInternet
+                    self.isLoading = false
+                    self.allCities = []
                 }
             } catch {
                 await MainActor.run {
-                    self.errorMessage = "Ошибка загрузки городов: \(error.localizedDescription)"
+                    self.error = .serverError
                     self.isLoading = false
+                    self.allCities = []
                 }
             }
         }
+    }
+    
+    func clearError() {
+        error = nil
     }
     
     func switchStations() {
@@ -77,7 +89,6 @@ class StationsViewModel: ObservableObject {
         }
     }
     
-    // Для фильтрации (только поезда)
     func getTrainStations(from settlement: Components.Schemas.Settlement) -> [Components.Schemas.Station] {
         return settlement.stations?.filter { $0.transport_type == "train" } ?? []
     }

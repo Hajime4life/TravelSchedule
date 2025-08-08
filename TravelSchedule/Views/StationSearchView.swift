@@ -24,27 +24,24 @@ struct StationSearchView: View {
     
     var body: some View {
         VStack {
-            
             ScrollView {
-                    LazyVStack(spacing: 0) {
-                        ForEach(filteredStations, id: \.self) { station in
-                            Button(action: {
-                                stationsViewModel.setSelectedStation(station)
-                            }) {
-                                HStack {
-                                    Text(station.title ?? "(Нет названия)")
-                                        .padding(.vertical, 17)
-                                    Spacer()
-                                    Image(systemName: "chevron.forward")
-                                }
-                                .foregroundColor(.blackDay)
-                                .padding(.horizontal)
-                                .contentShape(Rectangle())
+                LazyVStack(spacing: 0) {
+                    ForEach(filteredStations, id: \.self) { station in
+                        Button(action: {
+                            stationsViewModel.setSelectedStation(station)
+                        }) {
+                            HStack {
+                                Text(station.title ?? "(Нет названия)")
+                                    .padding(.vertical, 17)
+                                Spacer()
+                                Image(systemName: "chevron.forward")
                             }
-                            .buttonStyle(.plain)
-                            
+                            .foregroundColor(.blackDay)
+                            .padding(.horizontal)
+                            .contentShape(Rectangle())
                         }
-                    
+                        .buttonStyle(.plain)
+                    }
                 }
             }
             .searchable(
@@ -62,6 +59,8 @@ struct StationSearchView: View {
                         .foregroundColor(.blackDay)
                 }
             }
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .background(Color.whiteDay)
         }
     }
 }

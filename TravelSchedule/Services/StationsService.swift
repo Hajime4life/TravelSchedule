@@ -1,6 +1,6 @@
 import OpenAPIRuntime
-import Foundation
 import OpenAPIURLSession
+import Foundation
 
 typealias AllStationsResponse = Components.Schemas.AllStationsResponse
 
@@ -19,12 +19,18 @@ final class StationsService: StationsServiceProtocol {
     }
     
     func getAllStations() async throws -> AllStationsResponse {
-        let response = try await client.getAllStations(query: .init(apikey: apiKey, transportType: "train"))
-        let responseBody = try response.ok.body.html
-        let limit = 50 * 1024 * 1024
-        let fullData = try await Data(collecting: responseBody, upTo: limit)
-        let allStations = try JSONDecoder().decode(AllStationsResponse.self, from: fullData)
-        return allStations
+        do {
+            let response = try await client.getAllStations(query: .init(apikey: apiKey, transportType: "train"))
+            let responseBody = try response.ok.body.html
+            let limit = 50 * 1024 * 1024
+            let fullData = try await Data(collecting: responseBody, upTo: limit)
+            let allStations = try JSONDecoder().decode(AllStationsResponse.self, from: fullData)
+            return allStations
+        } catch URLError.Code.notConnectedToInternet {
+            throw NetworkError.noInternet
+        } catch {
+            throw NetworkError.serverError
+        }
     }
     
     func getFilteredCities() async throws -> [Components.Schemas.Settlement] {
@@ -41,7 +47,6 @@ final class StationsService: StationsServiceProtocol {
             }
             let allSettlements = filteredRegions.flatMap { $0.settlements ?? [] }
             
-            // Фильтруем города, у которых title не nil и не пустой, затем сортируем по алфавиту
             let validSettlements = allSettlements.filter { city in
                 if let title = city.title {
                     return !title.isEmpty
