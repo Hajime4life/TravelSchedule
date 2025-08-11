@@ -3,8 +3,9 @@ import SwiftUI
 struct ContentView: View {
     @Environment(\.colorScheme) private var colorScheme
     @StateObject private var stationsViewModel = StationsViewModel()
-    @StateObject var navigation = NavigationViewModel()
-    @StateObject var carrierViewModel = CarrierViewModel()
+    @StateObject private var navigation = NavigationViewModel()
+    @StateObject private var carrierViewModel = CarrierViewModel()
+    @StateObject private var settingsViewModel = SettingsViewModel()
     
     @State private var selectedTabIndex: Int8 = 0
     
@@ -40,7 +41,8 @@ struct ContentView: View {
                         }
                         .tag(TabItemType.schedule.index)
                     
-                    Text("Настройки")
+                    SettingView()
+                        .environmentObject(settingsViewModel)
                         .frame(maxWidth: .infinity, maxHeight: .infinity)
                         .background(Color.whiteDay)
                         .tabItem {
@@ -53,6 +55,7 @@ struct ContentView: View {
             }
         }
         .environmentObject(navigation)
+        .preferredColorScheme(settingsViewModel.isDark ? .dark : .light)
         .onAppear {
             stationsViewModel.loadCities()
         }

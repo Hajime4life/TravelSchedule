@@ -1,6 +1,7 @@
 import SwiftUI
 
 final class NavigationViewModel: ObservableObject {
+    @Published var showTabBar: Visibility = .visible
     @Published var path: [Screen] = []
     
     func push(_ screen: Screen) {

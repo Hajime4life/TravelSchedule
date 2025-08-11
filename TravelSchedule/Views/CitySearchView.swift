@@ -33,6 +33,7 @@ struct CitySearchView: View {
                                         .padding(.vertical, 17)
                                     Spacer()
                                     Image(systemName: "chevron.forward")
+                                        .foregroundColor(.accentColor)
                                 }
                                 .padding(.horizontal)
                                 .foregroundColor(.blackDay)
