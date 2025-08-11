@@ -22,7 +22,6 @@ final class NearestSettlementService: NearestSettlementServiceProtocol {
     
     func getNearestCity(lat: Double, lng: Double) async throws -> NearestCityResponse {
         let response = try await client.getNearestCity(query: .init(apikey: apiKey, lat: lat, lng: lng))
-        print(try response.ok.hashValue)
         return try response.ok.body.json
     }
     
