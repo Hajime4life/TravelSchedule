@@ -11,8 +11,7 @@ struct SettingView : View {
                     Toggle("Темная тема", isOn: $settingsViewModel.isDark)
                         .toggleStyle(BlueToggleStyle())
                     
-                NavigationLink(destination: PrivacyPolicyView()
-                    .colorScheme(.light)) {
+                NavigationLink(destination: PrivacyPolicyView().environmentObject(settingsViewModel)) {
                     HStack {
                         Text("Пользовательское соглашение")
                         Spacer()

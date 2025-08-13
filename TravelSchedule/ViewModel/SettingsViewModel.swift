@@ -1,6 +1,6 @@
 import SwiftUI
 
-class SettingsViewModel: ObservableObject {
+final class SettingsViewModel: ObservableObject {
     @Published var isDark: Bool {
         didSet {
             UserDefaults.standard.set(isDark, forKey: "isDarkMode")

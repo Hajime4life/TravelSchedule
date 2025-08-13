@@ -25,15 +25,13 @@ struct StoriesListView: View {
             }
             .padding(.leading)
         }
-        .sheet(
-            isPresented: $showStoryInFullscreen
-        ) {
-                StoriesView(
-                    show: $showStoryInFullscreen,
-                    startIndex: selectedStoryIdx,
-                    storiesCount: storiesViewModel.storiesCount,
-                )
-                .environmentObject(storiesViewModel)
+        .fullScreenCover(isPresented: $showStoryInFullscreen) {
+            StoriesView(
+                show: $showStoryInFullscreen,
+                startIndex: selectedStoryIdx,
+                storiesCount: storiesViewModel.storiesCount
+            )
+            .environmentObject(storiesViewModel)
             
         }
     }

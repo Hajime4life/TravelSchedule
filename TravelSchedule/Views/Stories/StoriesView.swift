@@ -10,8 +10,8 @@ struct StoriesView: View {
     }
     
     @Binding var show: Bool
-    @State var currentStoryIndex: Int
-    @State var currentProgress: CGFloat
+    @State private var currentStoryIndex: Int
+    @State private var currentProgress: CGFloat
     
     init(show: Binding<Bool>, startIndex: Int? = nil, storiesCount: Int) {
         self._show = show

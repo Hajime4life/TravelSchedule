@@ -3,7 +3,7 @@ import OpenAPIURLSession
 import Combine
 import Foundation
 
-class CarrierViewModel: ObservableObject {
+final class CarrierViewModel: ObservableObject {
     @Published var segments: [Components.Schemas.Segment] = []
     @Published var filteredSegments: [Components.Schemas.Segment] = []
     @Published var isFilterApplied: Bool = false

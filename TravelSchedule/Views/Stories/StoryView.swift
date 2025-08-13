@@ -8,8 +8,7 @@ struct StoryView: View {
         Image(story.imageName)
             .resizable()
             .aspectRatio(contentMode: .fill)
-            .frame(maxWidth: UIScreen.main.bounds.width)
-            .edgesIgnoringSafeArea(.top)
+            .frame(maxWidth: UIScreen.main.bounds.width, maxHeight: .infinity)
             .ignoresSafeArea()
             .overlay(
                 VStack {
@@ -26,17 +25,17 @@ struct StoryView: View {
                     .padding(.init(top: 0, leading: 16, bottom: 40, trailing: 16))
                 }
             )
-            .clipShape(
-                UnevenRoundedRectangle(
-                    cornerRadii: RectangleCornerRadii(
-                        topLeading: 0,
-                        bottomLeading: 40,
-                        bottomTrailing: 40,
-                        topTrailing: 0
-                    ),
-                    style: .continuous
-                )
-            )
+//            .clipShape(
+//                UnevenRoundedRectangle(
+//                    cornerRadii: RectangleCornerRadii(
+//                        topLeading: 0,
+//                        bottomLeading: 40,
+//                        bottomTrailing: 40,
+//                        topTrailing: 0
+//                    ),
+//                    style: .continuous
+//                )
+//            )
             .onDisappear() {
                 storiesViewModel.storyWasViewed(story)
             }
