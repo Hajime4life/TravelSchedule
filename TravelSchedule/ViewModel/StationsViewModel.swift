@@ -2,7 +2,7 @@ import SwiftUI
 import OpenAPIURLSession
 import Combine
 
-class StationsViewModel: ObservableObject {
+final class StationsViewModel: ObservableObject {
     @Published var allCities: [Components.Schemas.Settlement] = []
     @Published var isLoading: Bool = false
     @Published var error: NetworkError? = nil

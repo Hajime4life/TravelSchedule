@@ -13,7 +13,11 @@ struct MainView: View {
             ZStack {
                 Color.whiteDay.ignoresSafeArea()
             VStack {
+                StoriesListView()
+                    .padding(.bottom, 44)
+                
                 StationSelectionView(searchTextFrom: $searchTextFrom, searchTextTo: $searchTextTo)
+                .padding(.horizontal)
                 
                 if stationsViewModel.isStationsSelected {
                     Button(action: {
@@ -31,7 +35,6 @@ struct MainView: View {
                 
                 Spacer()
             }
-            .padding(.horizontal)
             .navigationDestination(for: Screen.self, destination: destinationView)
             .onChange(of: stationsViewModel.selectedFromStation) { from in
                 searchTextFrom = from?.title ?? "Откуда"
