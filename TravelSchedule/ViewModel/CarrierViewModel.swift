@@ -11,17 +11,7 @@ final class CarrierViewModel: ObservableObject {
     @Published var showTransferRaces: Bool? = nil
     @Published var error: NetworkError? = nil
     
-    private let searchService: SearchService
-    
-    init() {
-        self.searchService = SearchService(
-            apiKey: Constants.apiKey,
-            client: Client(
-                serverURL: try! Servers.Server1.url(),
-                transport: URLSessionTransport()
-            )
-        )
-    }
+    private let searchService: SearchService = SearchService()
     
     func loadRaces(stationsViewModel: StationsViewModel) {
         if let fromStation = stationsViewModel.selectedFromStation,

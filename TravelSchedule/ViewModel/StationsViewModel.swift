@@ -15,22 +15,12 @@ final class StationsViewModel: ObservableObject {
         selectedFromStation != nil && selectedToStation != nil
     }
     
-    private let stationsService: StationsService
-    
-    init() {
-        do {
-            self.stationsService = StationsService(
-                apiKey: Constants.apiKey,
-                client: Client(
-                    serverURL: try Servers.Server1.url(),
-                    transport: URLSessionTransport()
-                )
-            )
-        } catch {
-            fatalError("Ошибка инициализации StationsService: \(error.localizedDescription)")
-        }
+    private let stationsService: StationsServiceProtocol
+
+    init(stationsService: StationsServiceProtocol = StationsService()) {
+        self.stationsService = stationsService
     }
-    
+
     func loadCities() {
         guard !isLoading else { return }
         isLoading = true
@@ -38,19 +28,49 @@ final class StationsViewModel: ObservableObject {
         
         Task {
             do {
-                let allCities = try await stationsService.getFilteredCities()
-                let filteredCities = allCities.filter { settlement in
-                    guard let stations = settlement.stations else { return false }
-                    return stations.contains { $0.transport_type == "train" }
-                }
-                await MainActor.run {
-                    self.allCities = filteredCities.map { settlement in
-                        var modifiedSettlement = settlement
-                        modifiedSettlement.stations = settlement.stations?.filter { $0.transport_type == "train" }
-                        return modifiedSettlement
+                let allStationsResponse = try await stationsService.getAllStations()
+                guard let countries = allStationsResponse.countries else {
+                    await MainActor.run {
+                        self.allCities = []
+                        self.isLoading = false
                     }
-                    self.isLoading = false
-                    self.error = nil
+                    return
+                }
+                
+                if let russia = countries.first(where: { $0.title == "Россия" }),
+                   let regions = russia.regions {
+                    let targetRegions = ["Москва и Московская область", "Санкт-Петербург и Ленинградская область", "Краснодарский край"]
+                    let filteredRegions = regions.filter { region in
+                        targetRegions.contains(region.title ?? "")
+                    }
+                    let allSettlements = filteredRegions.flatMap { $0.settlements ?? [] }
+                    
+                    let validSettlements = allSettlements.filter { city in
+                        if let title = city.title {
+                            return !title.isEmpty
+                        }
+                        return false
+                    }
+                    
+                    let filteredCities = validSettlements.filter { settlement in
+                        guard let stations = settlement.stations else { return false }
+                        return stations.contains { $0.transport_type == "train" }
+                    }
+                    
+                    await MainActor.run {
+                        self.allCities = filteredCities.map { settlement in
+                            var modifiedSettlement = settlement
+                            modifiedSettlement.stations = settlement.stations?.filter { $0.transport_type == "train" }
+                            return modifiedSettlement
+                        }
+                        self.isLoading = false
+                        self.error = nil
+                    }
+                } else {
+                    await MainActor.run {
+                        self.allCities = []
+                        self.isLoading = false
+                    }
                 }
             } catch URLError.Code.notConnectedToInternet {
                 await MainActor.run {

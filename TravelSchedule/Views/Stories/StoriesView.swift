@@ -4,9 +4,7 @@ struct StoriesView: View {
     @EnvironmentObject private var storiesViewModel: StoryViewModel
     
     private var timerConfiguration: TimerConfiguration {
-        .init(
-            storiesCount: storiesViewModel.storiesCount
-        )
+        .init(storiesCount: storiesViewModel.storiesCount)
     }
     
     @Binding var show: Bool
@@ -16,7 +14,7 @@ struct StoriesView: View {
     init(show: Binding<Bool>, startIndex: Int? = nil, storiesCount: Int) {
         self._show = show
         self._currentStoryIndex = State(initialValue: startIndex ?? 0)
-        self._currentProgress = State(initialValue: TimerConfiguration(storiesCount: storiesCount).progress(for: startIndex ?? 0))
+        self._currentProgress = State(initialValue: 0)
     }
     
     var body: some View {
@@ -57,6 +55,9 @@ struct StoriesView: View {
             .padding(.top, 57)
             .padding(.trailing, 22)
         }
+        .onAppear {
+            currentProgress = timerConfiguration.progress(for: currentStoryIndex)
+        }
     }
 
     private func didChangeCurrentIndex(oldIndex: Int, newIndex: Int) {
@@ -78,6 +79,10 @@ struct StoriesView: View {
 }
 
 #Preview {
-    StoriesView(show: .constant(true), startIndex: 1, storiesCount: StoryViewModel().storiesCount)
-        .environmentObject(StoryViewModel())
+    StoriesView(
+        show: .constant(true),
+        startIndex: 1,
+        storiesCount: StoryViewModel().storiesCount
+    )
+    .environmentObject(StoryViewModel())
 }

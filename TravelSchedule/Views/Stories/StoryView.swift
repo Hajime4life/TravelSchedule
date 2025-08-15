@@ -2,10 +2,10 @@ import SwiftUI
 
 struct StoryView: View {
     @EnvironmentObject private var storiesViewModel: StoryViewModel
-    let story: Story
+    let storyState: StoryViewModel.StoryViewState
 
     var body: some View {
-        Image(story.imageName)
+        Image(storyState.story.imageName)
             .resizable()
             .aspectRatio(contentMode: .fill)
             .frame(maxWidth: UIScreen.main.bounds.width, maxHeight: .infinity)
@@ -14,10 +14,10 @@ struct StoryView: View {
                 VStack {
                     Spacer()
                     VStack(alignment: .leading, spacing: 10) {
-                        Text(story.title)
+                        Text(storyState.story.title)
                             .font(.bold34)
                             .foregroundColor(.white)
-                        Text(story.description)
+                        Text(storyState.story.description)
                             .font(.regular20)
                             .lineLimit(3)
                             .foregroundColor(.white)
@@ -25,25 +25,13 @@ struct StoryView: View {
                     .padding(.init(top: 0, leading: 16, bottom: 40, trailing: 16))
                 }
             )
-//            .clipShape(
-//                UnevenRoundedRectangle(
-//                    cornerRadii: RectangleCornerRadii(
-//                        topLeading: 0,
-//                        bottomLeading: 40,
-//                        bottomTrailing: 40,
-//                        topTrailing: 0
-//                    ),
-//                    style: .continuous
-//                )
-//            )
             .onDisappear() {
-                storiesViewModel.storyWasViewed(story)
+                storiesViewModel.storyWasViewed(storyState.story.id)
             }
-
     }
 }
 
 #Preview {
-    StoryView(story: .story4)
+    StoryView(storyState: StoryViewModel.StoryViewState(story: .story4))
         .environmentObject(StoryViewModel())
 }
