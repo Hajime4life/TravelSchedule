@@ -1,22 +1,20 @@
 import OpenAPIRuntime
 import OpenAPIURLSession
 
+// MARK: - Protocol
 protocol CopyrightServiceProtocol {
     func getCopyrightInfo() async throws -> CopyrightResponse
 }
 
+// MARK: - Service
 final class CopyrightService: CopyrightServiceProtocol {
-    private let apiKey: String
-    private let client: Client
+    private let networkClient: NetworkClient
     
-    init(apiKey: String, client: Client) {
-        self.apiKey = apiKey
-        self.client = client
+    init(networkClient: NetworkClient = NetworkClient()) {
+        self.networkClient = networkClient
     }
-    
+
     func getCopyrightInfo() async throws -> CopyrightResponse {
-        let response = try await client.getCopyrightInfo(query: .init(apikey: apiKey))
-        return try response.ok.body.json
+        return try await networkClient.getCopyrightInfo()
     }
-    
 }

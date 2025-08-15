@@ -1,27 +1,20 @@
 import OpenAPIRuntime
 import OpenAPIURLSession
 
-
+// MARK: - Protocol
 protocol NearestStationsServiceProtocol {
   func getNearestStations(lat: Double, lng: Double, distance: Int) async throws -> StationsResponse
 }
 
+// MARK: - Service
 final class NearestStationsService: NearestStationsServiceProtocol {
-  private let client: Client
-  private let apiKey: String
-  
-  init(apiKey: String, client: Client) {
-    self.apiKey = apiKey
-    self.client = client
-  }
-  
-  func getNearestStations(lat: Double, lng: Double, distance: Int) async throws -> StationsResponse {
-    let response = try await client.getNearestStations(query: .init(
-        apikey: apiKey,
-        lat: lat,
-        lng: lng,
-        distance: distance
-    ))
-    return try response.ok.body.json
-  }
+    private let networkClient: NetworkClient
+
+    init(networkClient: NetworkClient = NetworkClient()) {
+        self.networkClient = networkClient
+    }
+
+    func getNearestStations(lat: Double, lng: Double, distance: Int) async throws -> StationsResponse {
+        return try await networkClient.getNearestStations(lat: lat, lng: lng, distance: distance)
+    }
 }

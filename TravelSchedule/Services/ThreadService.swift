@@ -1,24 +1,20 @@
 import OpenAPIRuntime
 import OpenAPIURLSession
 
-
+// MARK: - Protocol
 protocol ThreadServiceProtocol {
     func getRouteStations(uid: String) async throws -> ThreadStationsResponse
 }
 
+// MARK: - Service
 final class ThreadService: ThreadServiceProtocol {
-    private let apiKey: String
-    private let client: Client
+    private let networkClient: NetworkClient
     
-    init(apiKey: String, client: Client) {
-        self.apiKey = apiKey
-        self.client = client
+    init(networkClient: NetworkClient = NetworkClient()) {
+        self.networkClient = networkClient
     }
     
     func getRouteStations(uid: String) async throws -> ThreadStationsResponse {
-        let response = try await client.getRouteStations(query: .init(apikey: apiKey, uid: uid))
-        return try response.ok.body.json
+        return try await networkClient.getRouteStations(uid: uid)
     }
-    
-    
 }
