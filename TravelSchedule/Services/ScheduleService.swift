@@ -2,7 +2,6 @@ import OpenAPIRuntime
 import Foundation
 import OpenAPIURLSession
 
-typealias ScheduleResponse = Components.Schemas.ScheduleResponse
 
 protocol ScheduleServiceProtocol {
     func getSchedule(station: String) async throws -> ScheduleResponse

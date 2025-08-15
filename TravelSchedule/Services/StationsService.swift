@@ -2,11 +2,10 @@ import OpenAPIRuntime
 import OpenAPIURLSession
 import Foundation
 
-typealias AllStationsResponse = Components.Schemas.AllStationsResponse
 
 protocol StationsServiceProtocol {
     func getAllStations() async throws -> AllStationsResponse
-    func getFilteredCities() async throws -> [Components.Schemas.Settlement]
+    func getFilteredCities() async throws -> [CityModel]
 }
 
 final class StationsService: StationsServiceProtocol {
@@ -33,7 +32,7 @@ final class StationsService: StationsServiceProtocol {
         }
     }
     
-    func getFilteredCities() async throws -> [Components.Schemas.Settlement] {
+    func getFilteredCities() async throws -> [CityModel] {
         let response = try await getAllStations()
         guard let countries = response.countries else {
             return []

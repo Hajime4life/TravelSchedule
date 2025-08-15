@@ -12,14 +12,20 @@ struct StoriesListView: View {
                     Image(story.imageName)
                         .resizable()
                         .aspectRatio(contentMode: .fill)
-                        .frame(width: story.isViewed ? 92 : 88, height: story.isViewed ? 140 : 136)
+                        .frame(
+                            width: story.isViewed ? 92 : 88,
+                            height: story.isViewed ? 140 : 136
+                        )
                         .cornerRadius(story.isViewed ? 0 : 16)
                         .padding(story.isViewed ? 0 : 4)
                         .background(Color.blueUniversal.opacity(story.isViewed ? 0 : 1))
                         .cornerRadius(16)
                         .opacity(story.isViewed ? 0.5 : 1.0)
                         .onTapGesture {
-                            openStory(story.id)
+                            Task {
+                                selectedStoryIdx = story.id
+                                showStoryInFullscreen = true
+                            }
                         }
                 }
             }
@@ -32,14 +38,6 @@ struct StoriesListView: View {
                 storiesCount: storiesViewModel.storiesCount
             )
             .environmentObject(storiesViewModel)
-            
-        }
-    }
-    
-    private func openStory(_ storyID: Int) {
-        Task {
-            selectedStoryIdx = storyID
-            showStoryInFullscreen = true
         }
     }
 }

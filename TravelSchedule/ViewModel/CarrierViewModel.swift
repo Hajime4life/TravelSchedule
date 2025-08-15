@@ -4,8 +4,8 @@ import Combine
 import Foundation
 
 final class CarrierViewModel: ObservableObject {
-    @Published var segments: [Components.Schemas.Segment] = []
-    @Published var filteredSegments: [Components.Schemas.Segment] = []
+    @Published var segments: [TripSegmentModel] = []
+    @Published var filteredSegments: [TripSegmentModel] = []
     @Published var isFilterApplied: Bool = false
     @Published var selectedTimeIntervals: Set<String> = []
     @Published var showTransferRaces: Bool? = nil
@@ -15,7 +15,7 @@ final class CarrierViewModel: ObservableObject {
     
     init() {
         self.searchService = SearchService(
-            apiKey: apiKey,
+            apiKey: Constants.apiKey,
             client: Client(
                 serverURL: try! Servers.Server1.url(),
                 transport: URLSessionTransport()

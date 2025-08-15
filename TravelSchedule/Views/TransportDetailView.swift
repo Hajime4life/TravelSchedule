@@ -2,7 +2,7 @@ import SwiftUI
 import OpenAPIURLSession
 
 struct TransportDetailView: View {
-    let carrier: Components.Schemas.Carrier
+    let carrier: CarrierModel
     
     var body: some View {
         VStack(alignment: .leading) {

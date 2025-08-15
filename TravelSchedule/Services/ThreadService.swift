@@ -1,7 +1,6 @@
 import OpenAPIRuntime
 import OpenAPIURLSession
 
-typealias ThreadStationsResponse = Components.Schemas.ThreadStationsResponse
 
 protocol ThreadServiceProtocol {
     func getRouteStations(uid: String) async throws -> ThreadStationsResponse

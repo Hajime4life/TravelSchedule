@@ -3,13 +3,13 @@ import OpenAPIURLSession
 import Combine
 
 final class StationsViewModel: ObservableObject {
-    @Published var allCities: [Components.Schemas.Settlement] = []
+    @Published var allCities: [CityModel] = []
     @Published var isLoading: Bool = false
     @Published var error: NetworkError? = nil
     
     @Published var isSelectingFrom: Bool = true
-    @Published var selectedFromStation: Components.Schemas.Station? = nil
-    @Published var selectedToStation: Components.Schemas.Station? = nil
+    @Published var selectedFromStation: StationModel? = nil
+    @Published var selectedToStation: StationModel? = nil
     
     var isStationsSelected: Bool {
         selectedFromStation != nil && selectedToStation != nil
@@ -20,7 +20,7 @@ final class StationsViewModel: ObservableObject {
     init() {
         do {
             self.stationsService = StationsService(
-                apiKey: apiKey,
+                apiKey: Constants.apiKey,
                 client: Client(
                     serverURL: try Servers.Server1.url(),
                     transport: URLSessionTransport()
@@ -80,7 +80,7 @@ final class StationsViewModel: ObservableObject {
         }
     }
     
-    func setSelectedStation(_ station: Components.Schemas.Station?) {
+    func setSelectedStation(_ station: StationModel?) {
         guard let station = station, station.transport_type == "train" else { return }
         if isSelectingFrom {
             selectedFromStation = station
@@ -89,7 +89,7 @@ final class StationsViewModel: ObservableObject {
         }
     }
     
-    func getTrainStations(from settlement: Components.Schemas.Settlement) -> [Components.Schemas.Station] {
+    func getTrainStations(from settlement: CityModel) -> [StationModel] {
         return settlement.stations?.filter { $0.transport_type == "train" } ?? []
     }
 }

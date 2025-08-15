@@ -7,12 +7,12 @@ struct StationSearchView: View {
     
     @State private var searchText: String = ""
     
-    var filteredStations: [Components.Schemas.Station] {
+    var filteredStations: [StationModel] {
         let allStations = stationsViewModel.allCities.flatMap { $0.stations ?? [] }
         let filtered = searchText.isEmpty ? allStations : allStations.filter { station in
             station.title?.lowercased().contains(searchText.lowercased()) ?? false
         }
-        return Array(filtered.reduce(into: [String: Components.Schemas.Station]()) { dict, station in
+        return Array(filtered.reduce(into: [String: StationModel]()) { dict, station in
             if let yandexCode = station.codes?.yandex_code {
                 dict[yandexCode, default: station] = station
             }

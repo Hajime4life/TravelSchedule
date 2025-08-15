@@ -2,10 +2,9 @@ import OpenAPIRuntime
 import OpenAPIURLSession
 import Foundation
 
-typealias Segments = Components.Schemas.Segments
 
 protocol SearchServiceProtocol {
-    func search(from: String, to: String, transfers: Bool) async throws -> Segments
+    func search(from: String, to: String, transfers: Bool) async throws -> SegmentsResponse
 }
 
 final class SearchService: SearchServiceProtocol {
@@ -17,7 +16,7 @@ final class SearchService: SearchServiceProtocol {
         self.client = client
     }
     
-    func search(from: String, to: String, transfers: Bool = true) async throws -> Segments {
+    func search(from: String, to: String, transfers: Bool = true) async throws -> SegmentsResponse {
         let dateFormatter = DateFormatter()
         dateFormatter.dateFormat = "yyyy-MM-dd"
         let todayString = dateFormatter.string(from: Date())

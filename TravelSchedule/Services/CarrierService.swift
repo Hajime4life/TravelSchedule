@@ -1,8 +1,6 @@
 import OpenAPIRuntime
 import OpenAPIURLSession
 
-typealias CarrierResponse = Components.Schemas.CarrierResponse
-
 protocol CarrierServiceProtocol {
     func getCarrierInfo(
         code: String

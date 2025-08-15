@@ -1,8 +1,6 @@
 import OpenAPIRuntime
 import OpenAPIURLSession
 
-typealias NearestCityResponse = Components.Schemas.NearestCityResponse
-
 protocol NearestSettlementServiceProtocol {
     func getNearestCity(
         lat: Double,

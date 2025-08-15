@@ -6,9 +6,9 @@ struct CitySearchView: View {
     @EnvironmentObject private var navigation: NavigationViewModel
     
     @State private var searchText: String = ""
-    @State private var selectedCity: Components.Schemas.Settlement?
+    @State private var selectedCity: CityModel?
     
-    var filteredCities: [Components.Schemas.Settlement] {
+    var filteredCities: [CityModel] {
         let cities = searchText.isEmpty ? viewModel.allCities : viewModel.allCities.filter { city in
             city.title?.lowercased().contains(searchText.lowercased()) ?? false
         }

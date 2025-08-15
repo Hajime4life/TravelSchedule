@@ -2,7 +2,7 @@ import SwiftUI
 import OpenAPIURLSession
 
 struct CarrierItemView: View {
-    let segment: Components.Schemas.Segment
+    let segment: TripSegmentModel
     @EnvironmentObject var viewModel: CarrierViewModel
     
     var body: some View {

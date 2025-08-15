@@ -1,8 +1,6 @@
 import OpenAPIRuntime
 import OpenAPIURLSession
 
-typealias CopyrightResponse = Components.Schemas.CopyrightResponse
-
 protocol CopyrightServiceProtocol {
     func getCopyrightInfo() async throws -> CopyrightResponse
 }
