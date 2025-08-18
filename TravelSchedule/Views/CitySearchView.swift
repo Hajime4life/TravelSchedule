@@ -5,26 +5,13 @@ struct CitySearchView: View {
     @EnvironmentObject private var viewModel: StationsViewModel
     @EnvironmentObject private var navigation: NavigationViewModel
     
-    @State private var searchText: String = ""
-    @State private var selectedCity: CityModel?
-    
-    var filteredCities: [CityModel] {
-        let cities = searchText.isEmpty ? viewModel.allCities : viewModel.allCities.filter { city in
-            city.title?.lowercased().contains(searchText.lowercased()) ?? false
-        }
-        return cities
-            .filter { $0.title != nil && !$0.title!.isEmpty }
-            .sorted { $0.title! < $1.title! }
-    }
-    
     var body: some View {
         ScrollView {
-            if !filteredCities.isEmpty {
+            if !viewModel.filteredCities.isEmpty {
                 LazyVStack(spacing: 0) {
-                    ForEach(filteredCities, id: \.self) { city in
+                    ForEach(viewModel.filteredCities, id: \.self) { city in
                         Button(action: {
-                            selectedCity = city
-                            navigation.push(.stationsList)
+                            viewModel.selectedCity = city
                         }) {
                             HStack {
                                 Text(city.title ?? "(Нет названия)")
@@ -42,14 +29,14 @@ struct CitySearchView: View {
             }
         }
         .searchable(
-            text: $searchText,
+            text: $viewModel.searchCityText,
             placement: .navigationBarDrawer(displayMode: .automatic),
             prompt: Text("Введите запрос")
         )
         .navigationBarTitleDisplayMode(.inline)
         .navigationTitle("Выбор города")
         .overlay {
-            if filteredCities.isEmpty && !searchText.isEmpty {
+            if viewModel.filteredCities.isEmpty && !viewModel.searchCityText.isEmpty {
                 Text("Город не найден")
                     .font(.system(size: 24))
                     .fontWeight(.bold)
@@ -58,16 +45,15 @@ struct CitySearchView: View {
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(Color.whiteDay)
+        .task {
+            await viewModel.loadCities()
+        }
     }
-    
 }
 
 #Preview {
-    let st = StationsViewModel()
+    let st = StationsViewModel(navigation: NavigationViewModel())
     CitySearchView()
         .environmentObject(st)
         .environmentObject(NavigationViewModel())
-        .onAppear() {
-            st.loadCities()
-        }
 }

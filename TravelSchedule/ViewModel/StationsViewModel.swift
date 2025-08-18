@@ -2,7 +2,10 @@ import SwiftUI
 import OpenAPIURLSession
 import Combine
 
+@MainActor
 final class StationsViewModel: ObservableObject {
+    
+    // MARK: - Published
     @Published var allCities: [CityModel] = []
     @Published var isLoading: Bool = false
     @Published var error: NetworkError? = nil
@@ -14,94 +17,132 @@ final class StationsViewModel: ObservableObject {
     @Published var searchStationText: String = ""
     @Published var filteredStations: [StationModel] = []
     
+    @Published var searchCityText: String = ""
+    @Published var filteredCities: [CityModel] = []
+    @Published var selectedCity: CityModel? = nil
+    
     var isStationsSelected: Bool {
         selectedFromStation != nil && selectedToStation != nil
     }
     
+    
     private let stationsService: StationsServiceProtocol
-
-    init(stationsService: StationsServiceProtocol = StationsService()) {
+    private weak var navigation: NavigationViewModel?
+    
+    init(
+        stationsService: StationsServiceProtocol = StationsService(),
+        navigation: NavigationViewModel? = nil
+    ) {
         self.stationsService = stationsService
+        self.navigation = navigation
         setupBindings()
     }
 
     private func setupBindings() {
+        // Фильтрация станций
         $searchStationText
             .debounce(for: .seconds(0.3), scheduler: DispatchQueue.main)
             .sink { [weak self] text in
                 self?.filterStations(with: text)
             }
             .store(in: &cancellables)
+        
+        // Фильтрация городов
+        $searchCityText
+            .debounce(for: .seconds(0.3), scheduler: DispatchQueue.main)
+            .sink { [weak self] text in
+                self?.filterCities(with: text)
+            }
+            .store(in: &cancellables)
+        
+        // Навигация при выборе города
+        $selectedCity
+            .sink { [weak self] city in
+                if city != nil {
+                    self?.navigateToStationsList()
+                }
+            }
+            .store(in: &cancellables)
     }
     
     private var cancellables = Set<AnyCancellable>()
 
-    func loadCities() {
+    func loadCities() async {
         guard !isLoading else { return }
-        isLoading = true
-        error = nil
+        await MainActor.run {
+            isLoading = true
+            error = nil
+        }
         
-        Task {
-            do {
-                let allStationsResponse = try await stationsService.getAllStations()
-                guard let countries = allStationsResponse.countries else {
-                    await MainActor.run {
-                        self.allCities = []
-                        self.isLoading = false
+        do {
+            let allStationsResponse = try await stationsService.getAllStations()
+            guard let countries = allStationsResponse.countries else {
+                await MainActor.run {
+                    allCities = []
+                    isLoading = false
+                }
+                return
+            }
+            
+            if let russia = countries.first(where: { $0.title == "Россия" }),
+               let regions = russia.regions {
+                let targetRegions = ["Москва и Московская область", "Санкт-Петербург и Ленинградская область", "Краснодарский край"]
+                let filteredRegions = regions.filter { region in
+                    targetRegions.contains(region.title ?? "")
+                }
+                let allSettlements = filteredRegions.flatMap { $0.settlements ?? [] }
+                
+                let validSettlements = allSettlements.filter { city in
+                    if let title = city.title {
+                        return !title.isEmpty
                     }
-                    return
+                    return false
                 }
                 
-                if let russia = countries.first(where: { $0.title == "Россия" }),
-                   let regions = russia.regions {
-                    let targetRegions = ["Москва и Московская область", "Санкт-Петербург и Ленинградская область", "Краснодарский край"]
-                    let filteredRegions = regions.filter { region in
-                        targetRegions.contains(region.title ?? "")
-                    }
-                    let allSettlements = filteredRegions.flatMap { $0.settlements ?? [] }
-                    
-                    let validSettlements = allSettlements.filter { city in
-                        if let title = city.title {
-                            return !title.isEmpty
-                        }
-                        return false
-                    }
-                    
-                    let filteredCities = validSettlements.filter { settlement in
-                        guard let stations = settlement.stations else { return false }
-                        return stations.contains { $0.transport_type == "train" }
-                    }
-                    
-                    await MainActor.run {
-                        self.allCities = filteredCities.map { settlement in
-                            var modifiedSettlement = settlement
-                            modifiedSettlement.stations = settlement.stations?.filter { $0.transport_type == "train" }
-                            return modifiedSettlement
-                        }
-                        self.isLoading = false
-                        self.error = nil
-                        self.filterStations(with: self.searchStationText)
-                    }
-                } else {
-                    await MainActor.run {
-                        self.allCities = []
-                        self.isLoading = false
-                    }
+                let filteredCities = validSettlements.filter { settlement in
+                    guard let stations = settlement.stations else { return false }
+                    return stations.contains { $0.transport_type == "train" }
                 }
-            } catch URLError.Code.notConnectedToInternet {
+                
                 await MainActor.run {
-                    self.error = .noInternet
-                    self.isLoading = false
-                    self.allCities = []
+                    allCities = filteredCities.map { settlement in
+                        var modifiedSettlement = settlement
+                        modifiedSettlement.stations = settlement.stations?.filter { $0.transport_type == "train" }
+                        return modifiedSettlement
+                    }
+                    isLoading = false
+                    error = nil
+                    filterCities(with: searchCityText)
+                    filterStations(with: searchStationText)
                 }
-            } catch {
+            } else {
                 await MainActor.run {
-                    self.error = .serverError
-                    self.isLoading = false
-                    self.allCities = []
+                    allCities = []
+                    isLoading = false
                 }
             }
+        } catch let error as URLError where error.code == .notConnectedToInternet {
+            await MainActor.run {
+                self.error = .noInternet
+                isLoading = false
+                allCities = []
+            }
+        } catch {
+            await MainActor.run {
+                self.error = .serverError
+                isLoading = false
+                allCities = []
+            }
         }
+    }
+    
+    private func filterCities(with text: String) {
+        let cities = text.isEmpty ? allCities : allCities.filter { city in
+            city.title?.lowercased().contains(text.lowercased()) ?? false
+        }
+        filteredCities = cities
+            .filter { $0.title != nil && !$0.title!.isEmpty }
+            .sorted { $0.title! < $1.title! }
     }
     
     private func filterStations(with text: String) {
@@ -118,6 +159,10 @@ final class StationsViewModel: ObservableObject {
             .filter { $0.transport_type == "train" }
             .filter { $0.title != nil && !$0.title!.isEmpty }
             .sorted { $0.title! < $1.title! }
+    }
+    
+    private func navigateToStationsList() {
+        navigation?.push(.stationsList)
     }
     
     func clearError() {
