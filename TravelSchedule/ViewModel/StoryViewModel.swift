@@ -2,17 +2,16 @@ import SwiftUI
 
 @MainActor
 final class StoryViewModel: ObservableObject {
-    
-    struct StoryViewState: Identifiable, Sendable { // Вынес в отдельную структуру для isViewed, не знаю на сколько это корректно
-            let id: Int
-            let story: Story
-            var isViewed: Bool = false
+    struct StoryViewState: Identifiable, Sendable {
+        let id: Int
+        let story: Story
+        var isViewed: Bool = false
 
-            init(story: Story) {
-                self.id = story.id
-                self.story = story
-            }
+        init(story: Story) {
+            self.id = story.id
+            self.story = story
         }
+    }
 
     @Published var stories: [StoryViewState] = []
     @Published var isLoading: Bool = false

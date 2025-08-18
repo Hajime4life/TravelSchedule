@@ -56,7 +56,7 @@ struct ContentView: View {
         }
         .environmentObject(navigation)
         .preferredColorScheme(settingsViewModel.isDark ? .dark : .light)
-        .onAppear {
+        .task {
             stationsViewModel.loadCities()
         }
     }

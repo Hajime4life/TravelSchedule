@@ -5,7 +5,6 @@ struct CarrierListView: View {
     @EnvironmentObject var stationsViewModel: StationsViewModel
     @EnvironmentObject var navigation: NavigationViewModel
     @EnvironmentObject var carrierViewModel: CarrierViewModel
-    
 
     var body: some View {
         VStack {

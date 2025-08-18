@@ -11,6 +11,9 @@ final class StationsViewModel: ObservableObject {
     @Published var selectedFromStation: StationModel? = nil
     @Published var selectedToStation: StationModel? = nil
     
+    @Published var searchStationText: String = ""
+    @Published var filteredStations: [StationModel] = []
+    
     var isStationsSelected: Bool {
         selectedFromStation != nil && selectedToStation != nil
     }
@@ -19,7 +22,19 @@ final class StationsViewModel: ObservableObject {
 
     init(stationsService: StationsServiceProtocol = StationsService()) {
         self.stationsService = stationsService
+        setupBindings()
     }
+
+    private func setupBindings() {
+        $searchStationText
+            .debounce(for: .seconds(0.3), scheduler: DispatchQueue.main)
+            .sink { [weak self] text in
+                self?.filterStations(with: text)
+            }
+            .store(in: &cancellables)
+    }
+    
+    private var cancellables = Set<AnyCancellable>()
 
     func loadCities() {
         guard !isLoading else { return }
@@ -65,6 +80,7 @@ final class StationsViewModel: ObservableObject {
                         }
                         self.isLoading = false
                         self.error = nil
+                        self.filterStations(with: self.searchStationText)
                     }
                 } else {
                     await MainActor.run {
@@ -86,6 +102,22 @@ final class StationsViewModel: ObservableObject {
                 }
             }
         }
+    }
+    
+    private func filterStations(with text: String) {
+        let allStations = allCities.flatMap { $0.stations ?? [] }
+        let filtered = text.isEmpty ? allStations : allStations.filter { station in
+            station.title?.lowercased().contains(text.lowercased()) ?? false
+        }
+        let uniqueStations = Array(filtered.reduce(into: [String: StationModel]()) { dict, station in
+            if let yandexCode = station.codes?.yandex_code {
+                dict[yandexCode, default: station] = station
+            }
+        }.values)
+        filteredStations = uniqueStations
+            .filter { $0.transport_type == "train" }
+            .filter { $0.title != nil && !$0.title!.isEmpty }
+            .sorted { $0.title! < $1.title! }
     }
     
     func clearError() {
@@ -111,5 +143,9 @@ final class StationsViewModel: ObservableObject {
     
     func getTrainStations(from settlement: CityModel) -> [StationModel] {
         return settlement.stations?.filter { $0.transport_type == "train" } ?? []
+    }
+    
+    func isNoStations() -> Bool {
+        return self.filteredStations.isEmpty && !self.searchStationText.isEmpty
     }
 }
