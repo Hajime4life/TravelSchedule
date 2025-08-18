@@ -15,8 +15,8 @@ struct ContentView: View {
         
         var iconName: String {
             switch self {
-                case .schedule: return "schedule_tab_ic"
-                case .settings: return "settings_tab_ic"
+            case .schedule: return "schedule_tab_ic"
+            case .settings: return "settings_tab_ic"
             }
         }
         
@@ -29,6 +29,7 @@ struct ContentView: View {
         ZStack {
             if stationsViewModel.isLoading {
                 LaunchScreenView()
+                    .ignoresSafeArea()
             } else {
                 TabView(selection: $selectedTabIndex) {
                     MainView()
@@ -37,7 +38,8 @@ struct ContentView: View {
                         .tabItem {
                             TabItem(
                                 iconName: TabItemType.schedule.iconName,
-                                isActive: selectedTabIndex == TabItemType.schedule.index)
+                                isActive: selectedTabIndex == TabItemType.schedule.index
+                            )
                         }
                         .tag(TabItemType.schedule.index)
                     
@@ -48,7 +50,8 @@ struct ContentView: View {
                         .tabItem {
                             TabItem(
                                 iconName: TabItemType.settings.iconName,
-                                isActive: selectedTabIndex == TabItemType.settings.index)
+                                isActive: selectedTabIndex == TabItemType.settings.index
+                            )
                         }
                         .tag(TabItemType.settings.index)
                 }
@@ -57,7 +60,7 @@ struct ContentView: View {
         .environmentObject(navigation)
         .preferredColorScheme(settingsViewModel.isDark ? .dark : .light)
         .task {
-            stationsViewModel.loadCities()
+            await stationsViewModel.loadCities()
         }
     }
     

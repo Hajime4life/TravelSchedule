@@ -12,57 +12,65 @@ struct MainView: View {
         NavigationStack(path: $navigation.path) {
             ZStack {
                 Color.whiteDay.ignoresSafeArea()
-            VStack {
-                StoriesListView()
-                    .padding(.bottom, 44)
-                
-                StationSelectionView(searchTextFrom: $searchTextFrom, searchTextTo: $searchTextTo)
-                .padding(.horizontal)
-                
-                if stationsViewModel.isStationsSelected {
-                    Button(action: {
-                        navigation.push(.carrierList)
-                    }) {
-                        Text("Найти")
-                            .fontWeight(.bold)
-                            .foregroundColor(.whiteUniversal)
-                            .padding(.horizontal, 45)
-                            .padding(.vertical, 20)
-                            .background(Color.blueUniversal)
-                            .cornerRadius(16)
+                VStack {
+                    StoriesListView()
+                        .padding(.bottom, 44)
+                    
+                    StationSelectionView(searchTextFrom: $searchTextFrom, searchTextTo: $searchTextTo)
+                        .padding(.horizontal)
+                    
+                    if stationsViewModel.isStationsSelected {
+                        Button(action: {
+                            navigation.push(.carrierList)
+                        }) {
+                            Text("Найти")
+                                .fontWeight(.bold)
+                                .foregroundColor(.whiteUniversal)
+                                .padding(.horizontal, 45)
+                                .padding(.vertical, 20)
+                                .background(Color.blueUniversal)
+                                .cornerRadius(16)
+                        }
                     }
+                    
+                    Spacer()
+                }
+                .navigationDestination(for: Screen.self, destination: destinationView)
+                .onChange(of: stationsViewModel.selectedFromStation) { from in
+                    searchTextFrom = from?.title ?? "Откуда"
+                    navigation.popToRoot()
+                }
+                .onChange(of: stationsViewModel.selectedToStation) { to in
+                    searchTextTo = to?.title ?? "Куда"
+                    navigation.popToRoot()
                 }
                 
-                Spacer()
-            }
-            .navigationDestination(for: Screen.self, destination: destinationView)
-            .onChange(of: stationsViewModel.selectedFromStation) { from in
-                searchTextFrom = from?.title ?? "Откуда"
-                navigation.popToRoot()
-            }
-            .onChange(of: stationsViewModel.selectedToStation) { to in
-                searchTextTo = to?.title ?? "Куда"
-                navigation.popToRoot()
-            }
-                
-            if let error = stationsViewModel.error {
-                ErrorView(error: error) {
-                    stationsViewModel.clearError()
-                    stationsViewModel.loadCities()
+                if let error = stationsViewModel.error {
+                    ErrorView(error: error) {
+                        Task {
+                            stationsViewModel.clearError()
+                            await stationsViewModel.loadCities()
+                        }
+                    }
+                    .ignoresSafeArea()
+                } else if let error = carrierViewModel.error {
+                    ErrorView(error: error) {
+                        Task {
+                            carrierViewModel.clearError()
+                            if
+                                let from = stationsViewModel.selectedFromStation?.code,
+                                let to = stationsViewModel .selectedToStation?.code {
+                                    await carrierViewModel.loadRaces(
+                                        from: from,
+                                        to: to
+                                    )
+                            }
+                        }
+                    }
+                    .ignoresSafeArea()
                 }
-                .ignoresSafeArea()
-            } else if let error = carrierViewModel.error {
-                ErrorView(error: error) {
-                    carrierViewModel.clearError()
-                    carrierViewModel.loadRaces(stationsViewModel: stationsViewModel)
-                }
-                .ignoresSafeArea()
             }
         }
-            
-        }
-        
-        
     }
 }
 
@@ -138,13 +146,4 @@ struct StationSelectionView: View {
         .background(Color.blueUniversal)
         .cornerRadius(20)
     }
-}
-
-
-#Preview {
-    let viewModel = StationsViewModel()
-    let navigation = NavigationViewModel()
-    return MainView()
-        .environmentObject(viewModel)
-        .environmentObject(navigation)
 }

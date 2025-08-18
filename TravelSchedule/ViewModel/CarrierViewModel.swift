@@ -13,46 +13,56 @@ final class CarrierViewModel: ObservableObject {
     
     private let searchService: SearchService = SearchService()
     
-    func loadRaces(stationsViewModel: StationsViewModel) {
-        if let fromStation = stationsViewModel.selectedFromStation,
-           let toStation = stationsViewModel.selectedToStation {
-            Task {
-                do {
-                    let response = try await searchService.search(
-                        from: fromStation.codes?.yandex_code ?? "",
-                        to: toStation.codes?.yandex_code ?? "",
-                        transfers: showTransferRaces ?? true
-                    )
-                    segments = response.segments ?? []
-                    applyFilters()
-                    error = nil
-                } catch NetworkError.noInternet {
-                    error = .noInternet
-                    segments = []
-                    filteredSegments = []
-                } catch NetworkError.serverError {
-                    error = .serverError
-                    segments = []
-                    filteredSegments = []
-                } catch {
-                    self.error = .serverError
-                    segments = []
-                    filteredSegments = []
-                }
+    func loadRaces(from: String, to: String) async {
+        guard !from.isEmpty, !to.isEmpty else {
+            await MainActor.run {
+                self.segments = []
+                self.filteredSegments = []
+                self.error = nil
+            }
+            return
+        }
+        
+        do {
+            let response = try await searchService.search(
+                from: from,
+                to: to,
+                transfers: showTransferRaces ?? true
+            )
+            await MainActor.run {
+                self.segments = response.segments ?? []
+                self.applyFilters()
+                self.error = nil
+            }
+        } catch NetworkError.noInternet {
+            await MainActor.run {
+                self.error = .noInternet
+                self.segments = []
+                self.filteredSegments = []
+            }
+        } catch NetworkError.serverError {
+            await MainActor.run {
+                self.error = .serverError
+                self.segments = []
+                self.filteredSegments = []
+            }
+        } catch {
+            await MainActor.run {
+                self.error = .serverError
+                self.segments = []
+                self.filteredSegments = []
             }
         }
     }
     
     func applyFilters() {
         filteredSegments = segments.filter { segment in
-            // Проверяем наличие пересадок
             if let showTransfers = showTransferRaces {
                 if !showTransfers && (segment.has_transfers ?? false) {
                     return false
                 }
             }
             
-            // Проверяем временные интервалы
             if selectedTimeIntervals.isEmpty {
                 return true
             }

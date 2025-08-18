@@ -25,16 +25,10 @@ final class StationsViewModel: ObservableObject {
         selectedFromStation != nil && selectedToStation != nil
     }
     
-    
     private let stationsService: StationsServiceProtocol
-    private weak var navigation: NavigationViewModel?
     
-    init(
-        stationsService: StationsServiceProtocol = StationsService(),
-        navigation: NavigationViewModel? = nil
-    ) {
+    init(stationsService: StationsServiceProtocol = StationsService()) {
         self.stationsService = stationsService
-        self.navigation = navigation
         setupBindings()
     }
 
@@ -54,21 +48,15 @@ final class StationsViewModel: ObservableObject {
                 self?.filterCities(with: text)
             }
             .store(in: &cancellables)
-        
-        // Навигация при выборе города
-        $selectedCity
-            .sink { [weak self] city in
-                if city != nil {
-                    self?.navigateToStationsList()
-                }
-            }
-            .store(in: &cancellables)
     }
     
     private var cancellables = Set<AnyCancellable>()
 
     func loadCities() async {
-        guard !isLoading else { return }
+        guard !isLoading else {
+            return
+        }
+        
         await MainActor.run {
             isLoading = true
             error = nil
@@ -121,9 +109,9 @@ final class StationsViewModel: ObservableObject {
                     isLoading = false
                 }
             }
-        } catch let error as URLError where error.code == .notConnectedToInternet {
+        } catch let error as URLError {
             await MainActor.run {
-                self.error = .noInternet
+                self.error = error.code == .notConnectedToInternet ? .noInternet : .serverError
                 isLoading = false
                 allCities = []
             }
@@ -159,10 +147,6 @@ final class StationsViewModel: ObservableObject {
             .filter { $0.transport_type == "train" }
             .filter { $0.title != nil && !$0.title!.isEmpty }
             .sorted { $0.title! < $1.title! }
-    }
-    
-    private func navigateToStationsList() {
-        navigation?.push(.stationsList)
     }
     
     func clearError() {

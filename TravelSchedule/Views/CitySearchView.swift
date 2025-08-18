@@ -12,6 +12,9 @@ struct CitySearchView: View {
                     ForEach(viewModel.filteredCities, id: \.self) { city in
                         Button(action: {
                             viewModel.selectedCity = city
+                            if viewModel.selectedCity != nil {
+                                navigation.push(.stationsList)
+                            }
                         }) {
                             HStack {
                                 Text(city.title ?? "(Нет названия)")
@@ -45,14 +48,11 @@ struct CitySearchView: View {
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(Color.whiteDay)
-        .task {
-            await viewModel.loadCities()
-        }
     }
 }
 
 #Preview {
-    let st = StationsViewModel(navigation: NavigationViewModel())
+    let st = StationsViewModel()
     CitySearchView()
         .environmentObject(st)
         .environmentObject(NavigationViewModel())

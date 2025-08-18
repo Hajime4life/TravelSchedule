@@ -44,15 +44,6 @@ struct StationSearchView: View {
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .background(Color.whiteDay)
-            .task {
-                await stationsViewModel.loadCities()
-            }
         }
     }
-}
-
-#Preview {
-    StationSearchView()
-        .environmentObject(StationsViewModel(navigation: NavigationViewModel()))
-        .environmentObject(NavigationViewModel())
 }

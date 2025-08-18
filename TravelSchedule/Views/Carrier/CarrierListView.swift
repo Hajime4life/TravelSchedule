@@ -55,22 +55,7 @@ struct CarrierListView: View {
                 .padding(.bottom, 24)
             }
         }
-        .onAppear {
-            carrierViewModel.loadRaces(stationsViewModel: stationsViewModel)
-        }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(Color.whiteDay)
     }
-}
-
-#Preview {
-    let st = StationsViewModel()
-    let carrierViewModel = CarrierViewModel()
-    CarrierListView()
-        .environmentObject(st)
-        .environmentObject(NavigationViewModel())
-        .environmentObject(carrierViewModel)
-        .onAppear {
-            st.loadCities()
-        }
 }

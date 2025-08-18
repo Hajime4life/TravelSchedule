@@ -8,7 +8,7 @@ struct StoriesListView: View {
     var body: some View {
         ScrollView(.horizontal, showsIndicators: false) {
             HStack(spacing: 12) {
-                ForEach(storiesViewModel.stories) { storyState in
+                ForEach(storiesViewModel.stories.sorted { ($0.isViewed ? 1 : 0) < ($1.isViewed ? 1 : 0) }) { storyState in
                     Image(storyState.story.imageName)
                         .resizable()
                         .aspectRatio(contentMode: .fill)
@@ -31,9 +31,6 @@ struct StoriesListView: View {
             }
             .padding(.leading)
         }
-        .task {
-            await storiesViewModel.loadInitialStories()
-        }
         .fullScreenCover(isPresented: $showStoryInFullscreen) {
             StoriesView(
                 show: $showStoryInFullscreen,
@@ -41,6 +38,9 @@ struct StoriesListView: View {
                 storiesCount: storiesViewModel.storiesCount
             )
             .environmentObject(storiesViewModel)
+        }
+        .task {
+            async let _ = storiesViewModel.loadInitialStories()
         }
         
     }
