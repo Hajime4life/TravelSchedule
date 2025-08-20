@@ -5,7 +5,7 @@ struct StoriesProgressBar: View {
     let storiesCount: Int
     let timerConfiguration: TimerConfiguration
     @Binding var currentProgress: CGFloat
-    @State private var timer: Timer.TimerPublisher
+    @State private var timer: Timer.TimerPublisher = Timer.publish(every: 0.1, on: .main, in: .common)
     @State private var cancellable: Cancellable?
 
     init(
@@ -16,14 +16,12 @@ struct StoriesProgressBar: View {
         self.storiesCount = storiesCount
         self.timerConfiguration = timerConfiguration
         self._currentProgress = currentProgress
-        self.timer = Self.makeTimer(configuration: timerConfiguration)
     }
 
     var body: some View {
         ProgressBar(numberOfSections: storiesCount, progress: currentProgress)
             .padding(.init(top: 7, leading: 12, bottom: 12, trailing: 12))
             .onAppear {
-                timer = Self.makeTimer(configuration: timerConfiguration)
                 cancellable = timer.connect()
             }
             .onDisappear {
@@ -37,6 +35,9 @@ struct StoriesProgressBar: View {
     private func timerTick() {
         withAnimation {
             currentProgress = timerConfiguration.nextProgress(progress: currentProgress)
+            if currentProgress >= 1.0 {
+                currentProgress = 0
+            }
         }
     }
 }

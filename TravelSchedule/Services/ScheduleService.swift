@@ -1,41 +1,20 @@
 import OpenAPIRuntime
-import Foundation
 import OpenAPIURLSession
 
-typealias ScheduleResponse = Components.Schemas.ScheduleResponse
-
+// MARK: - Protocol
 protocol ScheduleServiceProtocol {
     func getSchedule(station: String) async throws -> ScheduleResponse
 }
 
+// MARK: - Service
 final class ScheduleService: ScheduleServiceProtocol {
-    private let client: Client
-    private let apiKey: String
+    private let networkClient: NetworkClient
     
-    init(apiKey: String, client: Client) {
-        self.client = client
-        self.apiKey = apiKey
+    init(networkClient: NetworkClient = NetworkClient()) {
+        self.networkClient = networkClient
     }
     
     func getSchedule(station: String) async throws -> ScheduleResponse {
-        let response = try await client.getStationSchedule(query: .init(apikey: apiKey, station: station))
-        
-        let decoder = JSONDecoder()
-        decoder.dateDecodingStrategy = .custom { decoder in
-            let container = try decoder.singleValueContainer()
-            let dateString = try container.decode(String.self)
-            
-            let formatter = DateFormatter()
-            formatter.locale = Locale(identifier: "en_US_POSIX")
-            formatter.timeZone = TimeZone(secondsFromGMT: 0)
-            formatter.dateFormat = "HH:mm"
-            
-            if let date = formatter.date(from: dateString) {
-                return date
-            }
-            throw DecodingError.dataCorruptedError(in: container, debugDescription: "Дата \(dateString) не соответствует формату HH:mm")
-        }
-        
-        return try decoder.decode(ScheduleResponse.self, from: try JSONEncoder().encode(response.ok.body.json))
+        return try await networkClient.getSchedule(station: station)
     }
 }

@@ -8,18 +8,24 @@ struct StoriesListView: View {
     var body: some View {
         ScrollView(.horizontal, showsIndicators: false) {
             HStack(spacing: 12) {
-                ForEach(storiesViewModel.stories.sorted(by: { !$0.isViewed && $1.isViewed })) { story in
-                    Image(story.imageName)
+                ForEach(storiesViewModel.stories.sorted { ($0.isViewed ? 1 : 0) < ($1.isViewed ? 1 : 0) }) { storyState in
+                    Image(storyState.story.imageName)
                         .resizable()
                         .aspectRatio(contentMode: .fill)
-                        .frame(width: story.isViewed ? 92 : 88, height: story.isViewed ? 140 : 136)
-                        .cornerRadius(story.isViewed ? 0 : 16)
-                        .padding(story.isViewed ? 0 : 4)
-                        .background(Color.blueUniversal.opacity(story.isViewed ? 0 : 1))
+                        .frame(
+                            width: storyState.isViewed ? 92 : 88,
+                            height: storyState.isViewed ? 140 : 136
+                        )
+                        .cornerRadius(storyState.isViewed ? 0 : 16)
+                        .padding(storyState.isViewed ? 0 : 4)
+                        .background(Color.blueUniversal.opacity(storyState.isViewed ? 0 : 1))
                         .cornerRadius(16)
-                        .opacity(story.isViewed ? 0.5 : 1.0)
+                        .opacity(storyState.isViewed ? 0.5 : 1.0)
                         .onTapGesture {
-                            openStory(story.id)
+                            Task {
+                                selectedStoryIdx = storyState.story.id
+                                showStoryInFullscreen = true
+                            }
                         }
                 }
             }
@@ -32,15 +38,11 @@ struct StoriesListView: View {
                 storiesCount: storiesViewModel.storiesCount
             )
             .environmentObject(storiesViewModel)
-            
         }
-    }
-    
-    private func openStory(_ storyID: Int) {
-        Task {
-            selectedStoryIdx = storyID
-            showStoryInFullscreen = true
+        .task {
+            async let _ = storiesViewModel.loadInitialStories()
         }
+        
     }
 }
 

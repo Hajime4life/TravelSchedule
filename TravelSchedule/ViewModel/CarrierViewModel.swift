@@ -4,69 +4,75 @@ import Combine
 import Foundation
 
 final class CarrierViewModel: ObservableObject {
-    @Published var segments: [Components.Schemas.Segment] = []
-    @Published var filteredSegments: [Components.Schemas.Segment] = []
+    @Published var segments: [TripSegmentModel] = []
+    @Published var filteredSegments: [TripSegmentModel] = []
     @Published var isFilterApplied: Bool = false
     @Published var selectedTimeIntervals: Set<String> = []
-    @Published var showTransferRaces: Bool? = nil
-    @Published var error: NetworkError? = nil
+    @Published var showTransferRaces: Bool?
+    @Published var error: NetworkError?
     
-    private let searchService: SearchService
+    private let searchService: SearchService = SearchService()
     
-    init() {
-        self.searchService = SearchService(
-            apiKey: apiKey,
-            client: Client(
-                serverURL: try! Servers.Server1.url(),
-                transport: URLSessionTransport()
-            )
-        )
-    }
-    
-    func loadRaces(stationsViewModel: StationsViewModel) {
-        if let fromStation = stationsViewModel.selectedFromStation,
-           let toStation = stationsViewModel.selectedToStation {
+    func loadRaces(from: String, to: String) async {
+        guard !from.isEmpty, !to.isEmpty else {
+            await MainActor.run {
+                self.segments = []
+                self.filteredSegments = []
+                self.error = nil
+            }
+            return
+        }
+        
+        defer {
             Task {
-                do {
-                    let response = try await searchService.search(
-                        from: fromStation.codes?.yandex_code ?? "",
-                        to: toStation.codes?.yandex_code ?? "",
-                        transfers: showTransferRaces ?? true
-                    )
-                    segments = response.segments ?? []
-                    applyFilters()
-                    error = nil
-                } catch NetworkError.noInternet {
-                    error = .noInternet
-                    segments = []
-                    filteredSegments = []
-                } catch NetworkError.serverError {
-                    error = .serverError
-                    segments = []
-                    filteredSegments = []
-                } catch {
-                    self.error = .serverError
-                    segments = []
-                    filteredSegments = []
-                }
+                await self.applyFilters()
+            }
+        }
+        
+        do {
+            let response = try await searchService.search(
+                from: from,
+                to: to,
+                transfers: showTransferRaces ?? true
+            )
+            await MainActor.run {
+                self.segments = response.segments ?? []
+                self.error = nil
+            }
+        } catch NetworkError.noInternet {
+            await MainActor.run {
+                self.error = .noInternet
+                self.segments = []
+                self.filteredSegments = []
+            }
+        } catch NetworkError.serverError {
+            await MainActor.run {
+                self.error = .serverError
+                self.segments = []
+                self.filteredSegments = []
+            }
+        } catch {
+            await MainActor.run {
+                self.error = .serverError
+                self.segments = []
+                self.filteredSegments = []
             }
         }
     }
     
-    func applyFilters() {
+    func applyFilters() async {
         filteredSegments = segments.filter { segment in
-            // Проверяем наличие пересадок
             if let showTransfers = showTransferRaces {
                 if !showTransfers && (segment.has_transfers ?? false) {
                     return false
                 }
             }
             
-            // Проверяем временные интервалы
+            
             if selectedTimeIntervals.isEmpty {
                 return true
             }
-            
+            guard segment.thread?.carrier != nil else { return false }
             guard let departure = segment.departure else { return false }
             let formatter = ISO8601DateFormatter()
             guard let date = formatter.date(from: departure),
@@ -89,7 +95,9 @@ final class CarrierViewModel: ObservableObject {
             return false
         }
         
+       
         isFilterApplied = !selectedTimeIntervals.isEmpty || showTransferRaces != nil
+        
     }
     
     func clearError() {

@@ -1,12 +1,11 @@
 import SwiftUI
 
-struct Story: Identifiable {
+struct Story: Identifiable, Sendable {
     let id: Int
     let backgroundColor: Color
     let title: String
     let description: String
     let imageName: String
-    var isViewed: Bool = false
 
     static let story1 = Story(
         id: 0,

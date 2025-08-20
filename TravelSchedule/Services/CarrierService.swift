@@ -1,26 +1,20 @@
 import OpenAPIRuntime
 import OpenAPIURLSession
 
-typealias CarrierResponse = Components.Schemas.CarrierResponse
-
+// MARK: - Protocol
 protocol CarrierServiceProtocol {
-    func getCarrierInfo(
-        code: String
-    ) async throws -> CarrierResponse
+    func getCarrierInfo(code: String) async throws -> CarrierResponse
 }
 
+// MARK: - Service
 final class CarrierService: CarrierServiceProtocol {
-    private let apiKey: String
-    private let client: Client
+    private let networkClient: NetworkClient
     
-    init(apiKey: String, client: Client) {
-        self.apiKey = apiKey
-        self.client = client
+    init(networkClient: NetworkClient = NetworkClient()) {
+        self.networkClient = networkClient
     }
     
     func getCarrierInfo(code: String) async throws -> CarrierResponse {
-        let response = try await client.getCarrierInfo(query: .init(apikey: apiKey, code: code))
-        return try response.ok.body.json
+        try await networkClient.getCarrierInfo(code: code)
     }
-    
 }

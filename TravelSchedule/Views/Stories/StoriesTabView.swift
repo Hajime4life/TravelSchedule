@@ -6,8 +6,8 @@ struct StoriesTabView: View {
 
     var body: some View {
         TabView(selection: $currentStoryIndex) {
-            ForEach(storiesViewModel.stories) { story in
-                StoryView(story: story)
+            ForEach(storiesViewModel.stories) { storyState in
+                StoryView(storyState: storyState)
                     .onTapGesture {
                         didTapStory()
                     }
@@ -16,7 +16,6 @@ struct StoriesTabView: View {
         }
         .ignoresSafeArea()
         .tabViewStyle(PageTabViewStyle(indexDisplayMode: .never))
-
     }
 
     func didTapStory() {
