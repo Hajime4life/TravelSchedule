@@ -483,9 +483,10 @@ components:
         segments:
           type: array
           items:
-            oneOf:
-              - $ref: '#/components/schemas/Segment'
-              - $ref: '#/components/schemas/SegmentTransfer'
+            $ref: '#/components/schemas/Segment'
+            #oneOf:
+              #- $ref: '#/components/schemas/Segment'
+              #- $ref: '#/components/schemas/SegmentTransfer'
         interval_segments:
           type: array
           description: Список интервальных рейсов, движение по которым идет регулярно, но без определенного расписания.

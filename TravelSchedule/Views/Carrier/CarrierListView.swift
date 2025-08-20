@@ -21,10 +21,10 @@ struct CarrierListView: View {
                                     .environmentObject(carrierViewModel)
                             }
                         } else {
-                            Text("Пусто")
-                                .onAppear() {
-                                    dump(segment)
-                                }
+//                            Text("Пусто")
+//                                .onAppear() {
+//                                    dump(segment)
+//                                }
                         }
 //                        else if let carrier = segment.details.first.thred { // блин, ребят я увас непонятнятный yaml разные модели возвращаются
 //                            NavigationLink(destination: TransportDetailView(carrier: carrier)) {
