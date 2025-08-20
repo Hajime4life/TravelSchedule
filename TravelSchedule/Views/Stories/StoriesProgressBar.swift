@@ -1,8 +1,6 @@
 import SwiftUI
 import Combine
 
-import SwiftUI
-
 struct StoriesProgressBar: View {
     let storiesCount: Int
     let timerConfiguration: TimerConfiguration

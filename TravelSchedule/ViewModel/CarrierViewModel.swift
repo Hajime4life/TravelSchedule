@@ -8,7 +8,7 @@ final class CarrierViewModel: ObservableObject {
     @Published var filteredSegments: [TripSegmentModel] = []
     @Published var isFilterApplied: Bool = false
     @Published var selectedTimeIntervals: Set<String> = []
-    @Published var showTransferRaces: Bool? = nil
+    @Published var showTransferRaces: Bool?
     @Published var error: NetworkError?
     
     private let searchService: SearchService = SearchService()

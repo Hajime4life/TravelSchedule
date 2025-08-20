@@ -18,7 +18,7 @@ struct WebView: UIViewControllerRepresentable {
     }
 }
 
-class WKWebViewController: UIViewController {
+final class WKWebViewController: UIViewController {
     var url: URL?
     private var webView: WKWebView!
     

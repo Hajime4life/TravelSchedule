@@ -15,6 +15,6 @@ final class CarrierService: CarrierServiceProtocol {
     }
     
     func getCarrierInfo(code: String) async throws -> CarrierResponse {
-        return try await networkClient.getCarrierInfo(code: code)
+        try await networkClient.getCarrierInfo(code: code)
     }
 }

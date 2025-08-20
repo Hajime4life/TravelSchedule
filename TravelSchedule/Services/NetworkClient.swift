@@ -5,7 +5,7 @@ import OpenAPIURLSession
 actor NetworkClient {
     private let apiKey: String
     private let client: Client
-
+    private let decoder = JSONDecoder()
     init(
         apiKey: String = Constants.apiKey,
         client: Client = Client( // не знаю где еще это делать
@@ -51,7 +51,7 @@ actor NetworkClient {
     func getSchedule(station: String) async throws -> ScheduleResponse {
         let response = try await client.getStationSchedule(query: .init(apikey: apiKey, station: station))
         
-        let decoder = JSONDecoder()
+        
         decoder.dateDecodingStrategy = .custom { decoder in
             let container = try decoder.singleValueContainer()
             let dateString = try container.decode(String.self)
@@ -104,7 +104,7 @@ actor NetworkClient {
             let responseBody = try response.ok.body.html
             let limit = 50 * 1024 * 1024
             let fullData = try await Data(collecting: responseBody, upTo: limit)
-            let allStations = try JSONDecoder().decode(AllStationsResponse.self, from: fullData)
+            let allStations = try decoder.decode(AllStationsResponse.self, from: fullData)
             return allStations
         } catch URLError.Code.notConnectedToInternet {
             throw NetworkError.noInternet
