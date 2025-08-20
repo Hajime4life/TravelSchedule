@@ -18,20 +18,23 @@ struct MainView: View {
                     
                     StationSelectionView(searchTextFrom: $searchTextFrom, searchTextTo: $searchTextTo)
                         .padding(.horizontal)
-                    
-                    if stationsViewModel.isStationsSelected {
-                        Button(action: {
-                            navigation.push(.carrierList)
-                        }) {
-                            Text("Найти")
-                                .fontWeight(.bold)
-                                .foregroundColor(.whiteUniversal)
-                                .padding(.horizontal, 45)
-                                .padding(.vertical, 20)
-                                .background(Color.blueUniversal)
-                                .cornerRadius(16)
+                        .onAppear() {
+                            stationsViewModel.resetSelection()
                         }
+                    
+                    Button(action: {
+
+                        navigation.push(.carrierList)
+                    }) {
+                        Text("Найти")
+                            .fontWeight(.bold)
+                            .foregroundColor(.whiteUniversal)
+                            .padding(.horizontal, 45)
+                            .padding(.vertical, 20)
+                            .background(Color.blueUniversal)
+                            .cornerRadius(16)
                     }
+                    .opacity(stationsViewModel.isStationsSelected ? 1 : 0)
                     
                     Spacer()
                 }

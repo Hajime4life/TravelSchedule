@@ -2,11 +2,11 @@ import SwiftUI
 
 struct ContentView: View {
     @Environment(\.colorScheme) private var colorScheme
-    @StateObject private var stationsViewModel = StationsViewModel()
     @StateObject private var navigation = NavigationViewModel()
+    @StateObject private var stationsViewModel = StationsViewModel()
     @StateObject private var carrierViewModel = CarrierViewModel()
     @StateObject private var settingsViewModel = SettingsViewModel()
-    
+
     @State private var selectedTabIndex: Int8 = 0
     
     private enum TabItemType: Int8, CaseIterable {

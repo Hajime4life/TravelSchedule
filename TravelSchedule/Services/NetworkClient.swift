@@ -88,8 +88,11 @@ actor NetworkClient {
                 transfers: transfers
             ))
             return try response.ok.body.json
-        } catch URLError.Code.notConnectedToInternet {
-            throw NetworkError.noInternet
+        } catch let error as URLError {
+            if error.code == .notConnectedToInternet {
+                throw NetworkError.noInternet
+            }
+            throw NetworkError.serverError
         } catch {
             throw NetworkError.serverError
         }

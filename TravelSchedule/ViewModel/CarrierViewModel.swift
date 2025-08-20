@@ -9,7 +9,7 @@ final class CarrierViewModel: ObservableObject {
     @Published var isFilterApplied: Bool = false
     @Published var selectedTimeIntervals: Set<String> = []
     @Published var showTransferRaces: Bool? = nil
-    @Published var error: NetworkError? = nil
+    @Published var error: NetworkError?
     
     private let searchService: SearchService = SearchService()
     
@@ -23,6 +23,12 @@ final class CarrierViewModel: ObservableObject {
             return
         }
         
+        defer {
+            Task {
+                await self.applyFilters()
+            }
+        }
+        
         do {
             let response = try await searchService.search(
                 from: from,
@@ -31,7 +37,6 @@ final class CarrierViewModel: ObservableObject {
             )
             await MainActor.run {
                 self.segments = response.segments ?? []
-                self.applyFilters()
                 self.error = nil
             }
         } catch NetworkError.noInternet {
@@ -55,7 +60,7 @@ final class CarrierViewModel: ObservableObject {
         }
     }
     
-    func applyFilters() {
+    func applyFilters() async {
         filteredSegments = segments.filter { segment in
             if let showTransfers = showTransferRaces {
                 if !showTransfers && (segment.has_transfers ?? false) {
@@ -63,10 +68,11 @@ final class CarrierViewModel: ObservableObject {
                 }
             }
             
+            
             if selectedTimeIntervals.isEmpty {
                 return true
             }
-            
+            guard segment.thread?.carrier != nil else { return false }
             guard let departure = segment.departure else { return false }
             let formatter = ISO8601DateFormatter()
             guard let date = formatter.date(from: departure),
@@ -89,7 +95,9 @@ final class CarrierViewModel: ObservableObject {
             return false
         }
         
+       
         isFilterApplied = !selectedTimeIntervals.isEmpty || showTransferRaces != nil
+        
     }
     
     func clearError() {

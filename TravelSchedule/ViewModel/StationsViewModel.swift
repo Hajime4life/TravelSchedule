@@ -5,14 +5,14 @@ import Combine
 @MainActor
 final class StationsViewModel: ObservableObject {
     
-    // MARK: - Published
-    @Published var allCities: [CityModel] = []
-    @Published var isLoading: Bool = false
+    // MARK: - Published Props
+    @Published private(set) var allCities: [CityModel] = []
+    @Published private(set) var isLoading: Bool = false
     @Published var error: NetworkError? = nil
     
     @Published var isSelectingFrom: Bool = true
-    @Published var selectedFromStation: StationModel? = nil
-    @Published var selectedToStation: StationModel? = nil
+    @Published private(set) var selectedFromStation: StationModel? = nil
+    @Published private(set) var selectedToStation: StationModel? = nil
     
     @Published var searchStationText: String = ""
     @Published var filteredStations: [StationModel] = []
@@ -25,13 +25,19 @@ final class StationsViewModel: ObservableObject {
         selectedFromStation != nil && selectedToStation != nil
     }
     
+    // MARK: - Private Props
     private let stationsService: StationsServiceProtocol
     
+    private var cancellables = Set<AnyCancellable>()
+    
+    // MARK: - Init's
     init(stationsService: StationsServiceProtocol = StationsService()) {
         self.stationsService = stationsService
         setupBindings()
     }
-
+    
+    
+    // MARK: - Private Methods
     private func setupBindings() {
         // Фильтрация станций
         $searchStationText
@@ -48,94 +54,37 @@ final class StationsViewModel: ObservableObject {
                 self?.filterCities(with: text)
             }
             .store(in: &cancellables)
-    }
-    
-    private var cancellables = Set<AnyCancellable>()
-
-    func loadCities() async {
-        guard !isLoading else {
-            return
-        }
         
-        await MainActor.run {
-            isLoading = true
-            error = nil
-        }
-        
-        do {
-            let allStationsResponse = try await stationsService.getAllStations()
-            guard let countries = allStationsResponse.countries else {
-                await MainActor.run {
-                    allCities = []
-                    isLoading = false
-                }
-                return
+        // Реакция на изменение selectedCity
+        $selectedCity
+            .debounce(for: .seconds(0.1), scheduler: DispatchQueue.main)
+            .sink { [weak self] _ in
+                self?.filterStations(with: self?.searchStationText ?? "")
             }
-            
-            if let russia = countries.first(where: { $0.title == "Россия" }),
-               let regions = russia.regions {
-                let targetRegions = ["Москва и Московская область", "Санкт-Петербург и Ленинградская область", "Краснодарский край"]
-                let filteredRegions = regions.filter { region in
-                    targetRegions.contains(region.title ?? "")
-                }
-                let allSettlements = filteredRegions.flatMap { $0.settlements ?? [] }
-                
-                let validSettlements = allSettlements.filter { city in
-                    if let title = city.title {
-                        return !title.isEmpty
-                    }
-                    return false
-                }
-                
-                let filteredCities = validSettlements.filter { settlement in
-                    guard let stations = settlement.stations else { return false }
-                    return stations.contains { $0.transport_type == "train" }
-                }
-                
-                await MainActor.run {
-                    allCities = filteredCities.map { settlement in
-                        var modifiedSettlement = settlement
-                        modifiedSettlement.stations = settlement.stations?.filter { $0.transport_type == "train" }
-                        return modifiedSettlement
-                    }
-                    isLoading = false
-                    error = nil
-                    filterCities(with: searchCityText)
-                    filterStations(with: searchStationText)
-                }
-            } else {
-                await MainActor.run {
-                    allCities = []
-                    isLoading = false
-                }
-            }
-        } catch let error as URLError {
-            await MainActor.run {
-                self.error = error.code == .notConnectedToInternet ? .noInternet : .serverError
-                isLoading = false
-                allCities = []
-            }
-        } catch {
-            await MainActor.run {
-                self.error = .serverError
-                isLoading = false
-                allCities = []
-            }
-        }
+            .store(in: &cancellables)
     }
     
     private func filterCities(with text: String) {
-        let cities = text.isEmpty ? allCities : allCities.filter { city in
-            city.title?.lowercased().contains(text.lowercased()) ?? false
+        if text.isEmpty {
+            filteredCities = allCities
+                .sorted { $0.title! < $1.title! } // Полный список при очистке, с сортировкой
+        } else {
+            let cities = allCities.filter { city in
+                city.title?.lowercased().contains(text.lowercased()) ?? false
+            }
+            filteredCities = cities
+                .filter { $0.title != nil && !$0.title!.isEmpty }
+                .sorted { $0.title! < $1.title! }
         }
-        filteredCities = cities
-            .filter { $0.title != nil && !$0.title!.isEmpty }
-            .sorted { $0.title! < $1.title! }
     }
     
     private func filterStations(with text: String) {
-        let allStations = allCities.flatMap { $0.stations ?? [] }
-        let filtered = text.isEmpty ? allStations : allStations.filter { station in
+        guard let selectedCity = selectedCity, let stations = selectedCity.stations else {
+            filteredStations = []
+            return
+        }
+        
+        let filtered = text.isEmpty ? stations : stations.filter { station in
             station.title?.lowercased().contains(text.lowercased()) ?? false
         }
         let uniqueStations = Array(filtered.reduce(into: [String: StationModel]()) { dict, station in
@@ -147,6 +96,60 @@ final class StationsViewModel: ObservableObject {
             .filter { $0.transport_type == "train" }
             .filter { $0.title != nil && !$0.title!.isEmpty }
             .sorted { $0.title! < $1.title! }
+    }
+    
+    
+    // MARK: - Public Methods
+    func loadCities() async {
+        guard !isLoading else {
+            return
+        }
+
+        await MainActor.run {
+            isLoading = true
+            error = nil
+        }
+
+        do {
+            let allStationsResponse = try await stationsService.getAllStations()
+            guard let countries = allStationsResponse.countries,
+                  let russia = countries.first(where: { $0.title == "Россия" }),
+                  let regions = russia.regions else {
+                await MainActor.run {
+                    isLoading = false
+                }
+                return
+            }
+
+            let targetRegions = ["Москва и Московская область", "Санкт-Петербург и Ленинградская область", "Краснодарский край"]
+            let filteredRegions = regions.filter { targetRegions.contains($0.title ?? "") }
+            let allSettlements = filteredRegions.flatMap { $0.settlements ?? [] }
+
+            let validSettlements = allSettlements.filter { $0.title?.isEmpty == false }
+            let filteredCities = validSettlements.filter { settlement in
+                guard let stations = settlement.stations else { return false }
+                return stations.contains { $0.transport_type == "train" }
+            }
+
+            await MainActor.run {
+                allCities = filteredCities.map { settlement in
+                    var modifiedSettlement = settlement
+                    modifiedSettlement.stations = settlement.stations?.filter { $0.transport_type == "train" }
+                    return modifiedSettlement
+                }
+                isLoading = false
+            }
+        } catch let error as URLError {
+            await MainActor.run {
+                self.error = error.code == .notConnectedToInternet ? .noInternet : .serverError
+                isLoading = false
+            }
+        } catch {
+            await MainActor.run {
+                self.error = .serverError
+                isLoading = false
+            }
+        }
     }
     
     func clearError() {
@@ -170,11 +173,19 @@ final class StationsViewModel: ObservableObject {
         }
     }
     
-    func getTrainStations(from settlement: CityModel) -> [StationModel] {
-        return settlement.stations?.filter { $0.transport_type == "train" } ?? []
-    }
-    
     func isNoStations() -> Bool {
         return self.filteredStations.isEmpty && !self.searchStationText.isEmpty
+    }
+    
+    func isNoCities() -> Bool {
+        return self.filteredCities.isEmpty && !self.searchCityText.isEmpty
+    }
+    
+    /// Сбрасывает выбор города и станций
+    func resetSelection() {
+        selectedCity = nil
+        filteredStations = []
+        searchCityText = ""
+        searchStationText = ""
     }
 }

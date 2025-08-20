@@ -69,8 +69,10 @@ struct FilterView: View {
         }
         .overlay {
             Button(action: {
-                carrierViewModel.applyFilters()
-                dismiss()
+                Task {
+                    await carrierViewModel.applyFilters()
+                    dismiss()
+                }
             }) {
                 Text("Применить")
                     .font(.system(size: 17))

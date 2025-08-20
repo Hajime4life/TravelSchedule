@@ -1,2 +1,3 @@
 typealias TripSegmentModel = Components.Schemas.Segment
+typealias TripSegmentTransferModel = Components.Schemas.SegmentTransfer // эх...
 typealias SegmentsResponse = Components.Schemas.Segments

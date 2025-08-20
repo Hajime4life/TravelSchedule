@@ -39,7 +39,7 @@ struct CitySearchView: View {
         .navigationBarTitleDisplayMode(.inline)
         .navigationTitle("Выбор города")
         .overlay {
-            if viewModel.filteredCities.isEmpty && !viewModel.searchCityText.isEmpty {
+            if viewModel.isNoCities() {
                 Text("Город не найден")
                     .font(.system(size: 24))
                     .fontWeight(.bold)
@@ -48,6 +48,7 @@ struct CitySearchView: View {
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(Color.whiteDay)
+ 
     }
 }
 
